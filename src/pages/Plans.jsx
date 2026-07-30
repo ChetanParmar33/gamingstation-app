@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Segmented, Tag } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled, ShoppingCartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { CTable, CButton } from '../components/custom';
+import { CTable, CButton, CSegmented, CTag } from '../components/custom';
 
 // Plan cards data
 const PASS_PLANS = [
@@ -133,7 +132,7 @@ export default function Plans() {
           </p>
 
           <div style={{ marginTop: '2.5rem' }}>
-            <Segmented
+            <CSegmented
               options={['Short-Term', 'Long-Term Pass']}
               value={billingCycle}
               onChange={(value) => setBillingCycle(value)}
@@ -155,9 +154,9 @@ export default function Plans() {
               
               {plan.tag === 'BEST VALUE' && (
                 <div style={{ position: 'absolute', top: '15px', right: '15px' }}>
-                  <Tag color="gold" icon={<TrophyOutlined />} style={{ borderRadius: '6px', fontWeight: 600, padding: '2px 8px' }}>
+                  <CTag color="gold" icon={<TrophyOutlined />} style={{ borderRadius: '6px', fontWeight: 600, padding: '2px 8px' }}>
                     POPULAR
-                  </Tag>
+                  </CTag>
                 </div>
               )}
 

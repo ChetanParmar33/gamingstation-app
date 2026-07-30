@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Steps, Form, Input, Button, InputNumber, Card, message } from 'antd';
+import { message } from 'antd';
 import { 
   UserOutlined, 
   PhoneOutlined, 
@@ -23,7 +23,7 @@ import {
   markAsPaid,
   resetBooking
 } from '../store/bookingSlice';
-import { CForm, CInput, CButton, CCard, CSelect } from '../components/custom';
+import { CForm, CInput, CButton, CCard, CSelect, CSteps, CInputNumber } from '../components/custom';
 
 const PLAN_PRICES = {
   'oneday': { name: '1 Day Plan', price: 699 },
@@ -279,7 +279,7 @@ export default function Book() {
         
         {/* Steps Indicator */}
         <div style={{ padding: '2.5rem 0' }}>
-          <Steps
+          <CSteps
             current={currentStep}
             onChange={(step) => {
               if (step < currentStep) dispatch(setStep(step));
@@ -332,7 +332,7 @@ export default function Book() {
                   Add secondary controllers for multiplayer co-op sessions (+₹150/day).
                 </p>
               </div>
-              <InputNumber
+              <CInputNumber
                 min={0}
                 max={3}
                 value={extraControllers}

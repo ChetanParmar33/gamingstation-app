@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Result } from 'antd';
 import { PhoneOutlined, WhatsAppOutlined, HomeOutlined } from '@ant-design/icons';
-import { CButton, CCard } from '../components/custom';
+import { CButton, CCard, CResult } from '../components/custom';
 
 export default function Success() {
   const [bookingId, setBookingId] = useState('');
@@ -17,7 +16,7 @@ export default function Success() {
       <div className="container" style={{ maxWidth: '700px' }}>
         
         <CCard style={{ padding: '1rem', border: '1px solid var(--glass-border)' }}>
-          <Result
+          <CResult
             status="success"
             title={<span style={{ fontWeight: 900, fontSize: '2.2rem', color: 'var(--text-dark)' }}>Booking Confirmed!</span>}
             subTitle={
@@ -67,7 +66,7 @@ export default function Success() {
                 </div>
               </div>
             </div>
-          </Result>
+          </CResult>
         </CCard>
 
         <div style={{ marginTop: '3.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>

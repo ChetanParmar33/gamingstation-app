@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Tabs, Modal, message } from 'antd';
+import { message } from 'antd';
 import { GoogleOutlined, MessageOutlined, BulbOutlined, LockOutlined, PhoneOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { loginUser } from '../store/userSlice';
-import { CForm, CInput, CButton, CSelect } from '../components/custom';
+import { CForm, CInput, CButton, CSelect, CTabs, CModal } from '../components/custom';
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login');
@@ -103,7 +103,7 @@ export default function Login() {
         
         <div className="auth-card glass-card">
           
-          <Tabs
+          <CTabs
             activeKey={activeTab}
             onChange={(key) => setActiveTab(key)}
             centered
@@ -276,7 +276,7 @@ export default function Login() {
       </div>
  
       {/* FORGOT PASSWORD / PASSWORD RESET MODAL */}
-      <Modal
+      <CModal
         title={
           <div style={{ fontWeight: 800, fontSize: '1.2rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(24,24,27,0.06)' }}>
             Reset Password
@@ -361,8 +361,8 @@ export default function Login() {
             </div>
           </CForm>
         </div>
-      </Modal>
-
+      </CModal>
+ 
     </section>
   );
 }

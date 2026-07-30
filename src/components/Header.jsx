@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Button } from 'antd';
+import { CButton } from './custom';
 import { SunOutlined, MoonOutlined } from '@ant-design/icons';
 import { toggleTheme } from '../store/themeSlice';
 
@@ -61,46 +61,30 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className="main-nav" id="desktop-nav" aria-label="Main Navigation">
+          <nav className={`nav-links ${isMobileOpen ? 'active' : ''}`} id="desktop-nav">
             <div className="nav-item">
               <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
             </div>
-
-            <div className="nav-item">
-              <Link to="/plans" className={`nav-link ${isActive('/plans')}`}>
-                Plans <i className="fa-solid fa-chevron-down"></i>
-              </Link>
-              <div className="mega-menu" aria-label="Plans Submenu">
-                <div className="mega-col">
-                  <h3 className="mega-col-title"><i className="fa-solid fa-clock"></i> Short-Term</h3>
-                  <ul className="mega-list">
-                    <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-days"></i> 2 Days Rent</Link></li>
-                    <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-day"></i> 1 Day Rent</Link></li>
-                    <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-minus"></i> 3 Days Weekend</Link></li>
-                    <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-week"></i> 1 Week Pass</Link></li>
-                  </ul>
-                </div>
-                <div className="mega-col">
-                  <h3 className="mega-col-title"><i className="fa-solid fa-calendar-check"></i> Long-Term</h3>
-                  <ul className="mega-list">
-                    <li><Link to="/plans?term=long"><i className="fa-solid fa-tags"></i> 15 Days Pass</Link></li>
-                    <li><Link to="/plans?term=long"><i className="fa-solid fa-circle-check"></i> 1 Month Subscription</Link></li>
-                    <li><Link to="/plans?term=long"><i className="fa-solid fa-gem"></i> 2 Months Ultimate</Link></li>
-                    <li><Link to="/plans?term=long"><i className="fa-solid fa-crown"></i> 3 Months VIP Gamer</Link></li>
-                  </ul>
-                </div>
-                <div className="mega-col">
-                  <h3 className="mega-col-title"><i className="fa-solid fa-truck-ramp-box"></i> Delivery</h3>
-                  <ul className="mega-list">
-                    <li><Link to="/plans"><i className="fa-solid fa-bolt-lightning"></i> 2-Hour Delivery</Link></li>
-                    <li><Link to="/plans"><i className="fa-solid fa-handshake-angle"></i> Free Home Setup</Link></li>
-                    <li><Link to="/plans"><i className="fa-solid fa-arrows-rotate"></i> Easy Returns</Link></li>
-                    <li><Link to="/plans"><i className="fa-solid fa-clipboard-check"></i> Zero Paperwork</Link></li>
-                  </ul>
-                </div>
+            
+            <div className={`nav-item dropdown ${isMobileSubmenuOpen ? 'active' : ''}`}>
+              <a 
+                href="#" 
+                className="nav-link dropdown-toggle" 
+                onClick={toggleMobileSubmenu}
+                aria-haspopup="true" 
+                aria-expanded={isMobileSubmenuOpen}
+              >
+                Services <i className="fa-solid fa-chevron-down dropdown-icon"></i>
+              </a>
+              <div className="dropdown-menu">
+                <Link to="/plans" className="dropdown-item">Rental Plans & Passes</Link>
+                <Link to="/book" className="dropdown-item font-weight-bold">Book PS5 Now</Link>
               </div>
             </div>
 
+            <div className="nav-item">
+              <Link to="/faq" className={`nav-link ${isActive('/faq')}`}>FAQ</Link>
+            </div>
             <div className="nav-item">
               <Link to="/about" className={`nav-link ${isActive('/about')}`}>About Us</Link>
             </div>
@@ -110,7 +94,7 @@ export default function Header() {
           </nav>
 
           <div className="header-actions">
-            <Button
+            <CButton
               type="text"
               shape="circle"
               icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
@@ -156,7 +140,7 @@ export default function Header() {
         <div className="mobile-links">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
             <span style={{ fontWeight: 800, color: 'var(--text-dark)' }}>Theme</span>
-            <Button
+            <CButton
               type="text"
               shape="circle"
               icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
