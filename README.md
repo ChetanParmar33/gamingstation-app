@@ -1,17 +1,32 @@
-# React + Vite
+# GamingStation50 React Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A modern, high-performance, and responsive React web application migrated from the original GamingStation50 static website. Built using Vite, React 19, and React Router Dom 7.
 
-Currently, two official plugins are available:
+## Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Glassmorphism Theme**: Fully retained the premium glassmorphism visual aesthetic using refined slate and blue color tokens.
+- **Component-Based Architecture**: Modularly structured pages and UI controls.
+- **4-Step Booking Wizard**:
+  - Live controller counter calculations.
+  - Interactive Leaflet.js maps for pins and Nominatim-based reverse geocoding location searches.
+  - Promo code discounts (`GAME50`, `GAMER10`).
+  - Simulated Razorpay secure checkout flow.
+- **Game Library Search & Filtering**: Client-side query search and category toggles with modal detail popups.
+- **Stateful Pages**: 11 completed pages including Home, Plans, Book, About, Contact, FAQ, Login, Cancellation, Terms, Privacy, and Success.
 
-## React Compiler
+## Commands
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+To run the development server locally:
+```bash
+npm run dev
+```
 
-## Expanding the Oxlint configuration
+To build the optimized production assets:
+```bash
+npm run build
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
-# gamingstation-app
+To preview the built project locally:
+```bash
+npm run preview
+```
