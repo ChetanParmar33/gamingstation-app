@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { Button } from 'antd';
+import { SunOutlined, MoonOutlined } from '@ant-design/icons';
+import { toggleTheme } from '../store/themeSlice';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobileSubmenuOpen, setIsMobileSubmenuOpen] = useState(false);
   const location = useLocation();
+  const dispatch = useDispatch();
+  const themeMode = useSelector((state) => state.theme.mode);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -66,7 +72,7 @@ export default function Header() {
               </Link>
               <div className="mega-menu" aria-label="Plans Submenu">
                 <div className="mega-col">
-                  <h3 className="mega-col-title"><i class="fa-solid fa-clock"></i> Short-Term</h3>
+                  <h3 className="mega-col-title"><i className="fa-solid fa-clock"></i> Short-Term</h3>
                   <ul className="mega-list">
                     <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-days"></i> 2 Days Rent</Link></li>
                     <li><Link to="/plans?term=short"><i className="fa-solid fa-calendar-day"></i> 1 Day Rent</Link></li>
@@ -75,7 +81,7 @@ export default function Header() {
                   </ul>
                 </div>
                 <div className="mega-col">
-                  <h3 className="mega-col-title"><i class="fa-solid fa-calendar-check"></i> Long-Term</h3>
+                  <h3 className="mega-col-title"><i className="fa-solid fa-calendar-check"></i> Long-Term</h3>
                   <ul className="mega-list">
                     <li><Link to="/plans?term=long"><i className="fa-solid fa-tags"></i> 15 Days Pass</Link></li>
                     <li><Link to="/plans?term=long"><i className="fa-solid fa-circle-check"></i> 1 Month Subscription</Link></li>
@@ -84,7 +90,7 @@ export default function Header() {
                   </ul>
                 </div>
                 <div className="mega-col">
-                  <h3 className="mega-col-title"><i class="fa-solid fa-truck-ramp-box"></i> Delivery</h3>
+                  <h3 className="mega-col-title"><i className="fa-solid fa-truck-ramp-box"></i> Delivery</h3>
                   <ul className="mega-list">
                     <li><Link to="/plans"><i className="fa-solid fa-bolt-lightning"></i> 2-Hour Delivery</Link></li>
                     <li><Link to="/plans"><i className="fa-solid fa-handshake-angle"></i> Free Home Setup</Link></li>
@@ -104,6 +110,13 @@ export default function Header() {
           </nav>
 
           <div className="header-actions">
+            <Button
+              type="text"
+              shape="circle"
+              icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
+              onClick={() => dispatch(toggleTheme())}
+              style={{ marginRight: '0.5rem' }}
+            />
             <Link 
               to="/login" 
               className={`btn btn-secondary btn-sm ${isActive('/login')}`} 
@@ -141,6 +154,15 @@ export default function Header() {
       ></div>
       <aside className={`mobile-menu ${isMobileOpen ? 'active' : ''}`} id="mobile-nav" aria-label="Mobile Navigation Menu">
         <div className="mobile-links">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <span style={{ fontWeight: 800, color: 'var(--text-dark)' }}>Theme</span>
+            <Button
+              type="text"
+              shape="circle"
+              icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
+              onClick={() => dispatch(toggleTheme())}
+            />
+          </div>
           <Link to="/" className="mobile-link">Home</Link>
           
           <div className="mobile-link-group">

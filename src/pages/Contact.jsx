@@ -1,24 +1,15 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Form, Input, Button, message } from 'antd';
+import { MailOutlined, PhoneOutlined, SendOutlined, InfoCircleOutlined, CompassOutlined, MessageOutlined } from '@ant-design/icons';
+
+const { TextArea } = Input;
 
 export default function Contact() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [form] = Form.useForm();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Simulate API request
-    setIsSubmitted(true);
-    setTimeout(() => {
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1000);
-  };
-
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id.replace('contact-', '')]: value
-    }));
+  const onFinish = (values) => {
+    message.success('Message sent successfully! We will get back to you within 2 hours.');
+    form.resetFields();
   };
 
   return (
@@ -42,114 +33,105 @@ export default function Contact() {
           <div className="glass-card" style={{ padding: '3rem 2.5rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.3rem', marginBottom: '2rem', color: 'var(--text-dark)' }}>Send Message</h3>
             
-            {isSubmitted ? (
-              <div style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--success)' }}>
-                <i className="fa-solid fa-circle-check" style={{ fontSize: '3rem', marginBottom: '1rem' }}></i>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text-dark)' }}>Message Sent Successfully!</h4>
-                <p style={{ color: 'var(--text-muted)' }}>We will get back to you within 2 hours.</p>
-                <button 
-                  className="btn btn-secondary btn-sm" 
-                  style={{ marginTop: '1.5rem' }} 
-                  onClick={() => setIsSubmitted(false)}
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={onFinish}
+              requiredMark={false}
+            >
+              <div className="form-group-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
+                <Form.Item
+                  label="Your Full Name"
+                  name="name"
+                  rules={[{ required: true, message: 'Please enter your name' }]}
+                  style={{ margin: 0 }}
                 >
-                  Send Another Message
-                </button>
+                  <Input placeholder="e.g. John Doe" size="large" />
+                </Form.Item>
+                <Form.Item
+                  label="Email Address"
+                  name="email"
+                  rules={[
+                    { required: true, message: 'Please enter your email' },
+                    { type: 'email', message: 'Please enter a valid email' }
+                  ]}
+                  style={{ margin: 0 }}
+                >
+                  <Input placeholder="name@domain.com" size="large" />
+                </Form.Item>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <div className="form-group-grid">
-                  <div className="form-field">
-                    <label htmlFor="contact-name">Your Full Name</label>
-                    <input 
-                      type="text" 
-                      id="contact-name" 
-                      className="form-input" 
-                      required 
-                      placeholder="e.g. John Doe"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className="form-field">
-                    <label htmlFor="contact-email">Email Address</label>
-                    <input 
-                      type="email" 
-                      id="contact-email" 
-                      className="form-input" 
-                      required 
-                      placeholder="name@domain.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
 
-                <div className="form-field">
-                  <label htmlFor="contact-subject">Inquiry Subject</label>
-                  <input 
-                    type="text" 
-                    id="contact-subject" 
-                    className="form-input" 
-                    required 
-                    placeholder="e.g. Bulk Booking for Event"
-                    value={formData.subject}
-                    onChange={handleChange}
-                  />
-                </div>
+              <Form.Item
+                label="Inquiry Subject"
+                name="subject"
+                rules={[{ required: true, message: 'Please enter a subject' }]}
+              >
+                <Input placeholder="e.g. Bulk Booking for Event" size="large" />
+              </Form.Item>
 
-                <div className="form-field">
-                  <label htmlFor="contact-message">Detailed Message</label>
-                  <textarea 
-                    id="contact-message" 
-                    className="form-input" 
-                    style={{ height: '140px', fontFamily: 'inherit', resize: 'none' }} 
-                    required 
-                    placeholder="Type details here..."
-                    value={formData.message}
-                    onChange={handleChange}
-                  ></textarea>
-                </div>
+              <Form.Item
+                label="Detailed Message"
+                name="message"
+                rules={[{ required: true, message: 'Please enter your message' }]}
+              >
+                <TextArea placeholder="Type details here..." rows={5} />
+              </Form.Item>
 
-                <button className="btn btn-primary" type="submit" style={{ marginTop: '1rem' }}>
-                  Send Message <i className="fa-solid fa-paper-plane" style={{ marginLeft: '0.5rem' }}></i>
-                </button>
-              </form>
-            )}
+              <Form.Item style={{ marginBottom: 0 }}>
+                <Button 
+                  type="primary" 
+                  htmlType="submit" 
+                  icon={<SendOutlined />} 
+                  size="large"
+                  style={{ width: '100%', borderRadius: '12px' }}
+                >
+                  Send Message
+                </Button>
+              </Form.Item>
+            </Form>
           </div>
 
           {/* Contact Information Grid */}
           <div className="glass-card" style={{ padding: '3rem 2.5rem', display: 'flex', flexDirection: 'column', gap: '2.2rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.3rem', color: 'var(--text-dark)' }}>Direct Channels</h3>
             
-            <div className="contact-item">
-              <i className="fa-solid fa-phone" style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1.2rem', borderRadius: '50px', fontSize: '1.3rem' }}></i>
+            <div className="contact-item" style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+              <div style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <PhoneOutlined style={{ fontSize: '20px' }} />
+              </div>
               <div className="contact-info-text">
-                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)' }}>Hotline Support</h5>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>+91 99887 76655 (9 AM - 9 PM Daily)</p>
+                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>Hotline Support</h5>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>+91 99887 76655 (9 AM - 9 PM Daily)</p>
               </div>
             </div>
 
-            <div className="contact-item">
-              <i className="fa-brands fa-whatsapp" style={{ background: 'rgba(var(--success-rgb), 0.08)', color: 'var(--success)', padding: '1.2rem', borderRadius: '50px', fontSize: '1.3rem' }}></i>
+            <div className="contact-item" style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+              <div style={{ background: 'rgba(34, 197, 94, 0.08)', color: 'var(--success)', padding: '1rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MessageOutlined style={{ fontSize: '20px' }} />
+              </div>
               <div className="contact-info-text">
-                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)' }}>WhatsApp Assistant</h5>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>+91 99887 76655 (Automated Updates & Chat)</p>
+                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>WhatsApp Assistant</h5>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>+91 99887 76655 (Automated Updates & Chat)</p>
               </div>
             </div>
 
-            <div className="contact-item">
-              <i className="fa-solid fa-envelope" style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1.2rem', borderRadius: '50px', fontSize: '1.3rem' }}></i>
+            <div className="contact-item" style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+              <div style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <MailOutlined style={{ fontSize: '20px' }} />
+              </div>
               <div className="contact-info-text">
-                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)' }}>Email Correspondence</h5>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>support@gamingstation50.com</p>
+                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>Email Correspondence</h5>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>support@gamingstation50.com</p>
               </div>
             </div>
 
-            <div className="contact-item">
-              <i className="fa-solid fa-location-dot" style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1.2rem', borderRadius: '50px', fontSize: '1.3rem' }}></i>
+            <div className="contact-item" style={{ display: 'flex', gap: '1.2rem', alignItems: 'center' }}>
+              <div style={{ background: 'rgba(var(--primary-rgb), 0.08)', color: 'var(--primary)', padding: '1rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <CompassOutlined style={{ fontSize: '20px' }} />
+              </div>
               <div className="contact-info-text">
-                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)' }}>Operating Headquarters</h5>
-                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>Indiranagar Operational Hub, Sector 4, Bangalore, KA, India</p>
+                <h5 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-dark)', margin: 0 }}>Operating Headquarters</h5>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', margin: '0.2rem 0 0 0' }}>Indiranagar Operational Hub, Sector 4, Bangalore, KA, India</p>
               </div>
             </div>
           </div>

@@ -1,16 +1,89 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Table, Button, Segmented, Card } from 'antd';
+import { ClockCircleOutlined, CalendarOutlined, TagsOutlined, IdcardOutlined, ArrowRightOutlined, InfoCircleOutlined } from '@ant-design/icons';
+
+const COMPARE_COLUMNS = [
+  {
+    title: 'Features & Specs',
+    dataIndex: 'feature',
+    key: 'feature',
+    render: (text) => <strong style={{ color: 'var(--text-dark)' }}>{text}</strong>
+  },
+  { title: '1 Day', dataIndex: 'oneday', key: 'oneday' },
+  { title: '2 Days', dataIndex: 'twodays', key: 'twodays' },
+  { title: '3 Days', dataIndex: 'threedays', key: 'threedays' },
+  { title: '15 Days', dataIndex: 'fifteendays', key: 'fifteendays' },
+  { title: '30 Days', dataIndex: 'onemonth', key: 'onemonth' }
+];
+
+const COMPARE_DATA = [
+  {
+    key: '1',
+    feature: 'Rental Fee',
+    oneday: '₹699',
+    twodays: '₹1,399',
+    threedays: '₹1,999',
+    fifteendays: '₹4,999',
+    onemonth: '₹7,999'
+  },
+  {
+    key: '2',
+    feature: 'DualSense Controllers',
+    oneday: '1x Included',
+    twodays: '1x Included',
+    threedays: '1x Included',
+    fifteendays: '1x Included',
+    onemonth: '2x Included'
+  },
+  {
+    key: '3',
+    feature: 'Included Games',
+    oneday: 'Pre-installed + PS Plus',
+    twodays: 'Pre-installed + PS Plus',
+    threedays: 'Pre-installed + PS Plus',
+    fifteendays: 'Pre-installed + PS Plus',
+    onemonth: 'Pre-installed + PS Plus'
+  },
+  {
+    key: '4',
+    feature: 'Free Game Swaps',
+    oneday: 'None',
+    twodays: '1 Swap',
+    threedays: '1 Swap',
+    fifteendays: '2 Swaps',
+    onemonth: '4 Swaps'
+  },
+  {
+    key: '5',
+    feature: 'Security Deposit',
+    oneday: 'KYC Only',
+    twodays: 'KYC Only',
+    threedays: 'KYC Only',
+    fifteendays: 'KYC Only',
+    onemonth: 'KYC Only'
+  },
+  {
+    key: '6',
+    feature: 'Delivery Speed',
+    oneday: '2 Hours Standard',
+    twodays: '2 Hours Standard',
+    threedays: '2 Hours Standard',
+    fifteendays: 'Express (1 Hour)',
+    onemonth: 'VIP Priority'
+  }
+];
 
 export default function Plans() {
   const [searchParams] = useSearchParams();
-  const [isLongTerm, setIsLongTerm] = useState(false);
+  const [term, setTerm] = useState('Short Term');
 
   useEffect(() => {
-    const term = searchParams.get('term');
-    if (term === 'long') {
-      setIsLongTerm(true);
-    } else if (term === 'short') {
-      setIsLongTerm(false);
+    const termParam = searchParams.get('term');
+    if (termParam === 'long') {
+      setTerm('Long Term');
+    } else {
+      setTerm('Short Term');
     }
   }, [searchParams]);
 
@@ -30,25 +103,26 @@ export default function Plans() {
       {/* PRICING TOGGLE SYSTEM */}
       <section className="plans-section" style={{ background: 'none', border: 'none', paddingTop: '2rem' }}>
         <div className="container">
-          {/* Toggle Switch */}
-          <div className="toggle-container">
-            <span className={`toggle-label ${!isLongTerm ? 'active' : ''}`} onClick={() => setIsLongTerm(false)}>Short Term</span>
-            <div 
-              className={`toggle-switch ${isLongTerm ? 'active' : ''}`} 
-              onClick={() => setIsLongTerm(!isLongTerm)}
-              role="button" 
-              aria-label="Toggle rental plan durations" 
-              tabIndex={0}
-              onKeyDown={(e) => { if (e.key === 'Enter') setIsLongTerm(!isLongTerm); }}
-            >
-              <span className="toggle-slider"></span>
-            </div>
-            <span className={`toggle-label ${isLongTerm ? 'active' : ''}`} onClick={() => setIsLongTerm(true)}>Long Term</span>
+          
+          {/* Ant Design Segmented Control */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '3.5rem' }}>
+            <Segmented
+              options={['Short Term', 'Long Term']}
+              value={term}
+              onChange={(value) => setTerm(value)}
+              size="large"
+              style={{
+                background: 'var(--glass-bg)',
+                border: '1px solid var(--glass-border)',
+                padding: '4px',
+                borderRadius: '50px'
+              }}
+            />
           </div>
 
           {/* Pricing Grid */}
           <div className="plans-grid">
-            {!isLongTerm ? (
+            {term === 'Short Term' ? (
               <>
                 {/* Card 1 */}
                 <div className="plan-card glass-card">
@@ -68,7 +142,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> Free Home Delivery & Setup</li>
                     <li className="disabled"><i className="fas fa-times-circle"></i> Extra Controller</li>
                   </ul>
-                  <Link to="/book?plan=oneday" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=oneday" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Card 2 */}
@@ -90,7 +166,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> Free Home Delivery & Setup</li>
                     <li className="disabled"><i className="fas fa-times-circle"></i> Extra Controller</li>
                   </ul>
-                  <Link to="/book?plan=twodays" className="btn btn-primary">Select Plan</Link>
+                  <Link to="/book?plan=twodays" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button type="primary" size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Card 3 */}
@@ -111,7 +189,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> Free Home Delivery & Setup</li>
                     <li><i className="fas fa-check-circle"></i> 24/7 Support Assistance</li>
                   </ul>
-                  <Link to="/book?plan=threedays" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=threedays" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Card 4 */}
@@ -132,7 +212,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> Free Home Delivery & Setup</li>
                     <li><i className="fas fa-check-circle"></i> Zero Security Deposit*</li>
                   </ul>
-                  <Link to="/book?plan=fourdays" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=fourdays" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
               </>
             ) : (
@@ -155,7 +237,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> Free Home Delivery & setup</li>
                     <li className="disabled"><i className="fas fa-times-circle"></i> Free controllers repair</li>
                   </ul>
-                  <Link to="/book?plan=fifteendays" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=fifteendays" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Long Term Card 2 */}
@@ -177,7 +261,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> VIP immediate priority dispatch</li>
                     <li><i className="fas fa-check-circle"></i> Free door repair support</li>
                   </ul>
-                  <Link to="/book?plan=onemonth" className="btn btn-primary">Select Plan</Link>
+                  <Link to="/book?plan=onemonth" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button type="primary" size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Long Term Card 3 */}
@@ -198,7 +284,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> VIP immediate priority dispatch</li>
                     <li><i className="fas fa-check-circle"></i> Free door repair support</li>
                   </ul>
-                  <Link to="/book?plan=twomonths" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=twomonths" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
 
                 {/* Long Term Card 4 */}
@@ -219,7 +307,9 @@ export default function Plans() {
                     <li><i className="fas fa-check-circle"></i> VIP immediate priority dispatch</li>
                     <li><i className="fas fa-check-circle"></i> Free door repair support</li>
                   </ul>
-                  <Link to="/book?plan=threemonths" className="btn btn-secondary">Select Plan</Link>
+                  <Link to="/book?plan=threemonths" style={{ display: 'block', width: '100%', marginTop: 'auto' }}>
+                    <Button size="large" style={{ width: '100%', borderRadius: '8px' }}>Select Plan</Button>
+                  </Link>
                 </div>
               </>
             )}
@@ -236,77 +326,22 @@ export default function Plans() {
             <p className="section-desc">Review a side-by-side breakdown of the features and benefits offered in each tier.</p>
           </div>
 
-          <div className="compare-table-wrapper">
-            <table className="compare-table">
-              <thead>
-                <tr>
-                  <th>Features & Specs</th>
-                  <th>1 Day</th>
-                  <th>2 Days</th>
-                  <th>3 Days</th>
-                  <th>5 Days</th>
-                  <th>7 Days</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-coins"></i> Rental Fee</td>
-                  <td className="compare-price">₹699</td>
-                  <td className="compare-price">₹1,399</td>
-                  <td className="compare-price">₹1,999</td>
-                  <td className="compare-price">₹2,999</td>
-                  <td className="compare-price">₹3,499</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-gamepad"></i> Included Controllers</td>
-                  <td>1x Included</td>
-                  <td>1x Included</td>
-                  <td>1x Included</td>
-                  <td>1x Included</td>
-                  <td>1x Included</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-compact-disc"></i> Included Games</td>
-                  <td>Pre-installed + PS Plus Deluxe</td>
-                  <td>Pre-installed + PS Plus Deluxe</td>
-                  <td>Pre-installed + PS Plus Deluxe</td>
-                  <td>Pre-installed + PS Plus Deluxe</td>
-                  <td>Pre-installed + PS Plus Deluxe</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-rotate"></i> Free Game Swaps</td>
-                  <td>Unlimited</td>
-                  <td>Unlimited</td>
-                  <td>Unlimited</td>
-                  <td>Unlimited</td>
-                  <td>Unlimited</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-shield-halved"></i> Security Deposit</td>
-                  <td>KYC Only</td>
-                  <td>KYC Only</td>
-                  <td>KYC Only</td>
-                  <td>KYC Only</td>
-                  <td>KYC Only</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-truck-fast"></i> Delivery Priority</td>
-                  <td>Standard</td>
-                  <td>Standard</td>
-                  <td>Express</td>
-                  <td>Express</td>
-                  <td>VIP (Immediate)</td>
-                </tr>
-                <tr>
-                  <td className="compare-feature-title"><i className="fa-solid fa-headset"></i> Support Service</td>
-                  <td>9AM - 9PM</td>
-                  <td>9AM - 9PM</td>
-                  <td>24/7 Helpline</td>
-                  <td>24/7 Helpline</td>
-                  <td>VIP Concierge</td>
-                </tr>
-              </tbody>
-            </table>
+          <div style={{
+            background: 'var(--glass-bg)',
+            backdropFilter: 'blur(20px)',
+            border: '1px solid var(--glass-border)',
+            borderRadius: 'var(--radius-lg)',
+            overflow: 'hidden',
+            boxShadow: 'var(--glass-shadow)',
+            padding: '1.5rem'
+          }}>
+            <Table 
+              columns={COMPARE_COLUMNS} 
+              dataSource={COMPARE_DATA} 
+              pagination={false} 
+              bordered={false}
+              size="middle"
+            />
           </div>
         </div>
       </section>
@@ -324,7 +359,7 @@ export default function Plans() {
             <div className="why-card glass-card">
               <div className="why-icon"><i className="fa-solid fa-id-card"></i></div>
               <h3>1. Primary ID Check</h3>
-              <p>Submit a digital copy of your Aadhaar Card, Passport, or Driver's License during the checkout stage.</p>
+              <p>Submit a digital copy of your Aadhaar Card, Passport, or Driver\'s License during the checkout stage.</p>
             </div>
 
             <div className="why-card glass-card">
@@ -342,11 +377,15 @@ export default function Plans() {
 
           <div className="newsletter-card" style={{ marginTop: '5rem', background: 'linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%)' }}>
             <div className="text-center">
-              <h2 style={{ color: 'var(--white)', marginBottom: '1rem' }}>Ready to Begin Your Next-Gen Adventure?</h2>
+              <h2 style={{ color: '#ffffff', marginBottom: '1rem' }}>Ready to Begin Your Next-Gen Adventure?</h2>
               <p style={{ color: 'rgba(255,255,255,0.8)', maxWidth: '600px', margin: '0 auto 2.5rem auto' }}>
                 Reserve your PS5 package today with zero security deposit. Includes sanitized controllers, wiring, and pre-installed blockbusters.
               </p>
-              <Link to="/book" className="btn btn-secondary btn-lg" style={{ backgroundColor: 'var(--white)', color: 'var(--primary)' }}>Proceed to Booking Wizard</Link>
+              <Link to="/book">
+                <Button size="large" type="primary" style={{ height: '54px', padding: '0 40px', fontSize: '1.05rem', background: '#ffffff', color: 'var(--primary)', border: 'none', borderRadius: '8px', fontWeight: 600 }}>
+                  Proceed to Booking Wizard <ArrowRightOutlined />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

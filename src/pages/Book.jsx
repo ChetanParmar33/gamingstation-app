@@ -1,690 +1,541 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { Steps, Form, Input, Button, InputNumber, Modal, Card, message } from 'antd';
+import { 
+  UserOutlined, 
+  PhoneOutlined, 
+  MailOutlined, 
+  EnvironmentOutlined, 
+  CreditCardOutlined, 
+  CheckCircleOutlined, 
+  CompassOutlined,
+  ShoppingOutlined,
+  DollarOutlined
+} from '@ant-design/icons';
+import {
+  setStep,
+  selectPlan,
+  setExtraControllers,
+  updateCustomerInfo,
+  applyPromoCode,
+  setTotalAmount,
+  markAsPaid,
+  resetBooking
+} from '../store/bookingSlice';
 
-const ALL_PLANS = [
-  { id: 'oneday', name: '1 Day Pass', price: 699, duration: '24 Hours', days: 1, type: 'short' },
-  { id: 'twodays', name: '2 Days Pass', price: 1399, duration: '48 Hours', days: 2, type: 'short' },
-  { id: 'threedays', name: '3 Days Pass', price: 1999, duration: '72 Hours', days: 3, type: 'short' },
-  { id: 'fourdays', name: '4 Days Pass', price: 2699, duration: '96 Hours', days: 4, type: 'short' },
-  { id: 'fivedays', name: '5 Days Pass', price: 2999, duration: '120 Hours', days: 5, type: 'short' },
-  { id: 'sixdays', name: '6 Days Pass', price: 3299, duration: '144 Hours', days: 6, type: 'short' },
-  { id: 'sevendays', name: '7 Days Pass', price: 3499, duration: '168 Hours', days: 7, type: 'short' },
-  { id: 'fifteendays', name: '15 Days Pass', price: 4999, duration: '15 Days', days: 15, type: 'long' },
-  { id: 'onemonth', name: '1 Month Sub', price: 7999, duration: '30 Days', days: 30, type: 'long' },
-  { id: 'twomonths', name: '2 Months Ultimate', price: 13999, duration: '60 Days', days: 60, type: 'long' },
-  { id: 'threemonths', name: '3 Months VIP', price: 19999, duration: '90 Days', days: 90, type: 'long' },
-];
+const PLAN_PRICES = {
+  'oneday': { name: '1 Day Plan', price: 699 },
+  'twodays': { name: '2 Days Plan', price: 1399 },
+  'threedays': { name: '3 Days Plan', price: 1999 },
+  'fourdays': { name: '4 Days Plan', price: 2699 },
+  'fifteendays': { name: '15 Days Pass', price: 4999 },
+  'onemonth': { name: '1 Month Subscription', price: 7999 },
+  'twomonths': { name: '2 Months Ultimate', price: 13999 },
+  'threemonths': { name: '3 Months VIP Gamer', price: 19999 }
+};
+
+const EXTRA_CONTROLLER_COST_PER_DAY = 150;
 
 export default function Book() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // Wizard state
-  const [currentStep, setCurrentStep] = useState(1);
-  const [selectedPlan, setSelectedPlan] = useState(ALL_PLANS[0]);
-  const [extraControllers, setExtraControllers] = useState(0);
+  // Redux state selectors
+  const currentStep = useSelector((state) => state.booking.currentStep);
+  const selectedPlanId = useSelector((state) => state.booking.selectedPlanId);
+  const extraControllers = useSelector((state) => state.booking.extraControllers);
+  const customerInfo = useSelector((state) => state.booking.customerInfo);
+  const promoCode = useSelector((state) => state.booking.promoCode);
+  const discount = useSelector((state) => state.booking.discount);
+  const totalAmount = useSelector((state) => state.booking.totalAmount);
+  const isPaid = useSelector((state) => state.booking.isPaid);
 
-  // Form info state
-  const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [searchAddress, setSearchAddress] = useState('');
-  const [address, setAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('upi');
+  // Local state for UI
+  const [mapSearchText, setMapSearchText] = useState('');
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [promoInput, setPromoInput] = useState('');
+  const [form2] = Form.useForm();
+  const [form3] = Form.useForm();
 
-  // Coupon state
-  const [couponInput, setCouponInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const [couponMessage, setCouponMessage] = useState({ text: '', isError: false });
-
-  // Modal / Payment State
-  const [isRazorpayOpen, setIsRazorpayOpen] = useState(false);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [razorpayMethod, setRazorpayMethod] = useState('upi');
-
-  // Map references
-  const mapContainerRef = useRef(null);
+  // Leaflet references
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const mapContainerRef = useRef(null);
 
   // Initialize selected plan from URL
   useEffect(() => {
-    const planId = searchParams.get('plan');
-    if (planId) {
-      const plan = ALL_PLANS.find(p => p.id === planId);
-      if (plan) {
-        setSelectedPlan(plan);
-      }
+    const planParam = searchParams.get('plan');
+    if (planParam && PLAN_PRICES[planParam]) {
+      dispatch(selectPlan(planParam));
     }
   }, [searchParams]);
 
-  // Leaflet map setup when arriving at Step 3
-  useEffect(() => {
-    if (currentStep === 3) {
-      // Delay initialization slightly to ensure step panel is rendered and visible in DOM
-      const timer = setTimeout(() => {
-        initMap();
-      }, 150);
+  // Recalculate billing summary
+  const baseCost = PLAN_PRICES[selectedPlanId]?.price || 699;
+  const isLongTerm = selectedPlanId.includes('days') || selectedPlanId.includes('month');
+  const durationDays = selectedPlanId === 'oneday' ? 1 :
+                       selectedPlanId === 'twodays' ? 2 :
+                       selectedPlanId === 'threedays' ? 3 :
+                       selectedPlanId === 'fourdays' ? 4 :
+                       selectedPlanId === 'fifteendays' ? 15 :
+                       selectedPlanId === 'onemonth' ? 30 :
+                       selectedPlanId === 'twomonths' ? 60 : 90;
 
-      return () => {
-        clearTimeout(timer);
-        if (mapRef.current) {
-          mapRef.current.remove();
-          mapRef.current = null;
-          markerRef.current = null;
-        }
-      };
+  const controllerCharges = extraControllers * EXTRA_CONTROLLER_COST_PER_DAY * durationDays;
+  const finalSubtotal = baseCost + controllerCharges;
+  const grandTotal = Math.max(0, finalSubtotal - discount);
+
+  useEffect(() => {
+    dispatch(setTotalAmount(grandTotal));
+  }, [grandTotal]);
+
+  // Sync Form 2 fields with Redux state
+  useEffect(() => {
+    form2.setFieldsValue({
+      name: customerInfo.name,
+      phone: customerInfo.phone,
+      email: customerInfo.email
+    });
+  }, [customerInfo]);
+
+  // Leaflet Map Initialization
+  useEffect(() => {
+    if (currentStep === 2 && mapContainerRef.current && !mapRef.current) {
+      const defaultLatLng = [12.9716, 77.5946]; // Bangalore
+      const initialCoordinates = customerInfo.coordinates || defaultLatLng;
+
+      // Mount Map
+      const mapInstance = window.L.map(mapContainerRef.current).setView(initialCoordinates, 13);
+      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(mapInstance);
+
+      // Create Draggable Marker
+      const markerInstance = window.L.marker(initialCoordinates, { draggable: true }).addTo(mapInstance);
+      
+      mapRef.current = mapInstance;
+      markerRef.current = markerInstance;
+
+      // Handle marker dragend
+      markerInstance.on('dragend', () => {
+        const position = markerInstance.getLatLng();
+        reverseGeocode(position.lat, position.lng);
+      });
+
+      // If coordinates weren't set yet, do reverse-geocode for default center
+      if (!customerInfo.address) {
+        reverseGeocode(initialCoordinates[0], initialCoordinates[1]);
+      }
     }
+
+    return () => {
+      if (currentStep !== 2 && mapRef.current) {
+        mapRef.current.remove();
+        mapRef.current = null;
+        markerRef.current = null;
+      }
+    };
   }, [currentStep]);
 
-  const initMap = () => {
-    // Check if window.L (Leaflet) is loaded
-    if (!window.L || mapRef.current) return;
-
-    const L = window.L;
-    const defaultCoords = [12.9716, 77.5946]; // Bangalore default center
-
-    mapRef.current = L.map('map').setView(defaultCoords, 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(mapRef.current);
-
-    markerRef.current = L.marker(defaultCoords, { draggable: true }).addTo(mapRef.current);
-
-    // Geocode helper
-    const reverseGeocode = (lat, lng) => {
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.display_name) {
-            setAddress(data.display_name);
-          }
-        })
-        .catch(err => console.error('Geocoding error:', err));
-    };
-
-    // Events
-    markerRef.current.on('dragend', () => {
-      const position = markerRef.current.getLatLng();
-      reverseGeocode(position.lat, position.lng);
-    });
-
-    mapRef.current.on('click', (e) => {
-      if (markerRef.current) {
-        markerRef.current.setLatLng(e.latlng);
-        reverseGeocode(e.latlng.lat, e.latlng.lng);
+  // Geocoding and Reverse Geocoding via OSM Nominatim
+  const reverseGeocode = async (lat, lng) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      const data = await response.json();
+      if (data && data.display_name) {
+        dispatch(updateCustomerInfo({ 
+          address: data.display_name,
+          coordinates: [lat, lng]
+        }));
+        form3.setFieldsValue({ address: data.display_name });
       }
-    });
-
-    // Invalidate size in case layout shifts
-    mapRef.current.invalidateSize();
-  };
-
-  const triggerMapSearch = () => {
-    if (!searchAddress.trim() || !window.L || !mapRef.current || !markerRef.current) return;
-
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.length > 0) {
-          const result = data[0];
-          const lat = parseFloat(result.lat);
-          const lon = parseFloat(result.lon);
-
-          mapRef.current.setView([lat, lon], 14);
-          markerRef.current.setLatLng([lat, lon]);
-          setAddress(result.display_name);
-        } else {
-          alert('Location not found. Please drag the map pin manually.');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        alert('Error searching for address. Please try dragging the pin.');
-      });
-  };
-
-  // Controller pricing details
-  const controllersCost = 199 * extraControllers * selectedPlan.days;
-  const subtotalCost = selectedPlan.price + controllersCost;
-
-  // Coupon calculations
-  let discount = 0;
-  if (appliedCoupon) {
-    if (appliedCoupon.code === 'GAME50') {
-      discount = 50;
-    } else if (appliedCoupon.code === 'GAMER10') {
-      discount = Math.round(subtotalCost * 0.1);
+    } catch (error) {
+      console.error('Reverse geocoding error:', error);
     }
-  }
+  };
 
-  const grandTotal = Math.max(0, subtotalCost - discount);
+  const handleMapSearch = async () => {
+    if (!mapSearchText) return;
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchText)}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        const latitude = parseFloat(lat);
+        const longitude = parseFloat(lon);
 
-  const applyCoupon = (e) => {
-    e.preventDefault();
-    const code = couponInput.trim().toUpperCase();
+        if (mapRef.current && markerRef.current) {
+          mapRef.current.setView([latitude, longitude], 15);
+          markerRef.current.setLatLng([latitude, longitude]);
+          dispatch(updateCustomerInfo({ 
+            address: display_name,
+            coordinates: [latitude, longitude]
+          }));
+          form3.setFieldsValue({ address: display_name });
+        }
+      } else {
+        message.warning('No locations found. Try a different search query.');
+      }
+    } catch (error) {
+      message.error('Geocoding service unavailable.');
+    }
+  };
 
-    if (!code) {
-      setCouponMessage({ text: 'Please enter a coupon code.', isError: true });
+  const handleApplyPromo = () => {
+    const code = promoInput.trim().toUpperCase();
+    if (code === 'GAME50') {
+      dispatch(applyPromoCode({ code: 'GAME50', discount: 50 }));
+      message.success('Promo code GAME50 applied! Saved ₹50.');
+    } else if (code === 'GAMER10') {
+      const tenPercent = Math.round(finalSubtotal * 0.1);
+      dispatch(applyPromoCode({ code: 'GAMER10', discount: tenPercent }));
+      message.success(`Promo code GAMER10 applied! Saved ₹${tenPercent}.`);
+    } else {
+      message.error('Invalid promo code.');
+    }
+  };
+
+  // Nav Step Submits
+  const handleStep1Submit = () => {
+    dispatch(setStep(1));
+  };
+
+  const handleStep2Submit = (values) => {
+    dispatch(updateCustomerInfo(values));
+    dispatch(setStep(2));
+  };
+
+  const handleStep3Submit = () => {
+    if (!customerInfo.address) {
+      message.warning('Please search or pin a location on the map first.');
       return;
     }
-
-    if (code === 'GAME50') {
-      setAppliedCoupon({ code: 'GAME50', type: 'flat', value: 50 });
-      setCouponMessage({ text: 'Coupon GAME50 applied successfully! ₹50 Off.', isError: false });
-    } else if (code === 'GAMER10') {
-      setAppliedCoupon({ code: 'GAMER10', type: 'percentage', value: 10 });
-      setCouponMessage({ text: 'Coupon GAMER10 applied successfully! 10% Off.', isError: false });
-    } else {
-      setCouponMessage({ text: 'Invalid promo code. Try GAME50 or GAMER10.', isError: true });
-    }
+    dispatch(setStep(3));
   };
 
-  // Wizard Nav actions
-  const handleNext = () => {
-    if (currentStep === 1) {
-      if (!selectedPlan) {
-        alert('Please choose a plan to proceed.');
-        return;
-      }
-    } else if (currentStep === 2) {
-      if (!name.trim()) {
-        alert('Please enter your full name to proceed.');
-        return;
-      }
-      const rawPhone = phone.replace(/[\s+-]/g, '');
-      if (!phone.trim() || rawPhone.length < 10 || isNaN(rawPhone)) {
-        alert('Please enter a valid mobile number.');
-        return;
-      }
-    } else if (currentStep === 3) {
-      if (!address.trim()) {
-        alert('Please pin or specify your delivery address.');
-        return;
-      }
-    }
-
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
-    }
+  const handleProcessPayment = () => {
+    setIsPaymentModalOpen(true);
   };
 
-  const handlePrev = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handlePaySecurely = () => {
-    setIsRazorpayOpen(true);
-  };
-
-  const handleRazorpaySuccess = (e) => {
-    e.preventDefault();
-    setIsProcessingPayment(true);
-
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      setIsRazorpayOpen(false);
-      navigate('/success');
-    }, 2000);
-  };
-
-  const getStepPercentage = () => {
-    return ((currentStep - 1) / 3) * 100;
+  const handleConfirmPayment = () => {
+    setIsPaymentModalOpen(false);
+    dispatch(markAsPaid(true));
+    message.success('Payment authorized successfully!');
+    navigate('/success');
   };
 
   return (
-    <>
-      <section className="booking-section">
-        <div className="container">
-          <div className="booking-grid">
-            
-            {/* Left Column: Wizard panel */}
-            <div className="booking-wizard-card glass-card" style={{ padding: '3rem 2.5rem' }} id="booking-wizard-form">
-              
-              {/* Stepper Horizontal Node Progress */}
-              <div className="stepper-wrapper">
-                <div className="stepper-progress" style={{ width: `${getStepPercentage()}%` }}></div>
-                {[
-                  { num: 1, label: 'Select Plan' },
-                  { num: 2, label: 'Contact Info' },
-                  { num: 3, label: 'Select Location' },
-                  { num: 4, label: 'Payment' }
-                ].map(step => (
-                  <div 
-                    key={step.num}
-                    className={`step-node ${currentStep === step.num ? 'active' : ''} ${currentStep > step.num ? 'completed' : ''}`}
-                    onClick={() => {
-                      if (step.num < currentStep) {
-                        setCurrentStep(step.num);
-                      }
-                    }}
-                    style={{ cursor: step.num < currentStep ? 'pointer' : 'default' }}
-                  >
-                    <div className="step-circle">{step.num}</div>
-                    <span className="step-label">{step.label}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* STEP 1: Select Plan & Controllers */}
-              {currentStep === 1 && (
-                <div className="booking-panel active">
-                  <h3 className="panel-title">
-                    <i className="fa-solid fa-gamepad" style={{ color: 'var(--primary)', marginRight: '0.5rem' }}></i> 
-                    Select Plan & Controllers
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                    Choose your rental duration plan and select the number of extra controllers.
-                  </p>
-
-                  <div className="plan-select-grid">
-                    {ALL_PLANS.map(plan => (
-                      <div 
-                        key={plan.id}
-                        className={`plan-select-option ${selectedPlan.id === plan.id ? 'selected' : ''}`}
-                        onClick={() => setSelectedPlan(plan)}
-                      >
-                        <div className="plan-select-details">
-                          <h4>{plan.name}</h4>
-                          <p>{plan.duration} duration</p>
-                        </div>
-                        <span className="plan-select-price">₹{plan.price.toLocaleString()}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="form-field" style={{ marginTop: '2rem', borderTop: '1px solid rgba(24, 24, 27, 0.05)', paddingTop: '1.5rem' }}>
-                    <label style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
-                      <i className="fa-solid fa-gamepad" style={{ color: 'var(--primary)' }}></i> Add Extra Controllers
-                    </label>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '1.2rem' }}>
-                      1 DualSense controller is included free. Extra controllers are <strong>₹199 / day</strong> per controller.
-                    </p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: 'rgba(var(--primary-rgb), 0.03)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid rgba(var(--primary-rgb), 0.05)', maxWidth: '480px' }}>
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary btn-sm"
-                        style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--white)', border: '1px solid rgba(24,24,27,0.1)', cursor: 'pointer' }}
-                        onClick={() => setExtraControllers(prev => Math.max(0, prev - 1))}
-                      >-</button>
-                      <span style={{ fontSize: '1.3rem', fontWeight: 800, minWidth: '30px', textAlign: 'center', color: 'var(--text-dark)' }}>
-                        {extraControllers}
-                      </span>
-                      <button 
-                        type="button" 
-                        className="btn btn-secondary btn-sm"
-                        style={{ width: '40px', height: '40px', padding: 0, borderRadius: '50%', fontSize: '1.2rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--white)', border: '1px solid rgba(24,24,27,0.1)', cursor: 'pointer' }}
-                        onClick={() => setExtraControllers(prev => Math.min(4, prev + 1))}
-                      >+</button>
-                      <span style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', marginLeft: 'auto' }}>
-                        +₹{controllersCost.toLocaleString()} extra
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="wizard-buttons" style={{ justifyContent: 'flex-end', marginTop: '2rem' }}>
-                    <button className="btn btn-primary btn-wizard-next" onClick={handleNext}>
-                      Continue to Details <i className="fa-solid fa-arrow-right" style={{ marginLeft: '0.5rem' }}></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 2: Contact Details */}
-              {currentStep === 2 && (
-                <div className="booking-panel active">
-                  <h3 className="panel-title">
-                    <i className="fa-solid fa-user-tag" style={{ color: 'var(--primary)', marginRight: '0.5rem' }}></i> 
-                    Contact Details
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
-                    Please enter your name and phone number to start your rental booking.
-                  </p>
-
-                  <div className="form-field">
-                    <label htmlFor="customer-name">Full Name</label>
-                    <input 
-                      type="text" 
-                      id="customer-name" 
-                      className="form-input" 
-                      placeholder="Enter your full name" 
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required 
-                    />
-                  </div>
-
-                  <div className="form-field">
-                    <label htmlFor="customer-phone">Phone Number</label>
-                    <input 
-                      type="tel" 
-                      id="customer-phone" 
-                      className="form-input" 
-                      placeholder="Enter your mobile number" 
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required 
-                    />
-                  </div>
-
-                  <div className="wizard-buttons">
-                    <button className="btn btn-secondary btn-wizard-prev" onClick={handlePrev}>
-                      <i className="fa-solid fa-arrow-left" style={{ marginRight: '0.5rem' }}></i> Previous
-                    </button>
-                    <button className="btn btn-primary btn-wizard-next" onClick={handleNext}>
-                      Select Location <i className="fa-solid fa-arrow-right" style={{ marginLeft: '0.5rem' }}></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: Select Location */}
-              {currentStep === 3 && (
-                <div className="booking-panel active">
-                  <h3 className="panel-title">
-                    <i className="fa-solid fa-map-location-dot" style={{ color: 'var(--primary)', marginRight: '0.5rem' }}></i> 
-                    Select Location
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                    Search for your area and pin your exact delivery location on the map.
-                  </p>
-
-                  <div className="map-search-bar">
-                    <input 
-                      type="text" 
-                      id="map-search-input" 
-                      className="form-input" 
-                      placeholder="Search area, landmark or street name..."
-                      value={searchAddress}
-                      onChange={(e) => setSearchAddress(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === 'Enter') triggerMapSearch(); }}
-                    />
-                    <button 
-                      className="btn btn-primary btn-sm" 
-                      id="map-search-btn" 
-                      type="button"
-                      onClick={triggerMapSearch}
-                    >
-                      <i className="fa-solid fa-magnifying-glass"></i> Search
-                    </button>
-                  </div>
-
-                  <div id="map" ref={mapContainerRef} style={{ height: '320px', borderRadius: 'var(--radius-md)', border: '2px solid rgba(var(--primary-rgb), 0.1)', marginBottom: '1.5rem', position: 'relative', zIndex: 1 }}></div>
-
-                  <div className="form-field">
-                    <label htmlFor="rental-address">Confirmed Delivery Address</label>
-                    <textarea 
-                      id="rental-address" 
-                      className="form-input" 
-                      rows="2" 
-                      placeholder="Confirm your street address, flat/house number, floor etc."
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                    ></textarea>
-                  </div>
-
-                  <div className="wizard-buttons">
-                    <button className="btn btn-secondary btn-wizard-prev" onClick={handlePrev}>
-                      <i className="fa-solid fa-arrow-left" style={{ marginRight: '0.5rem' }}></i> Previous
-                    </button>
-                    <button className="btn btn-primary btn-wizard-next" onClick={handleNext}>
-                      Go to Payment <i className="fa-solid fa-arrow-right" style={{ marginLeft: '0.5rem' }}></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 4: Payment Options */}
-              {currentStep === 4 && (
-                <div className="booking-panel active">
-                  <h3 className="panel-title">
-                    <i className="fa-solid fa-credit-card" style={{ color: 'var(--primary)', marginRight: '0.5rem' }}></i> 
-                    Secure Payment
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
-                    Select your payment option to complete your reservation securely.
-                  </p>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2rem' }}>
-                    <div 
-                      className={`payment-method-item ${paymentMethod === 'upi' ? 'selected' : ''}`}
-                      onClick={() => setPaymentMethod('upi')}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <i className="fa-brands fa-google-pay" style={{ fontSize: '1.8rem', color: '#FFB800' }}></i>
-                        <div>
-                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>UPI Apps</h4>
-                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>Google Pay, PhonePe, Paytm, BHIM</p>
-                        </div>
-                      </div>
-                      <i className={`fa-solid ${paymentMethod === 'upi' ? 'fa-circle-check' : 'fa-circle'}`} style={{ color: paymentMethod === 'upi' ? 'var(--primary)' : 'rgba(24,24,27,0.1)', fontSize: '1.1rem' }}></i>
-                    </div>
-
-                    <div 
-                      className={`payment-method-item ${paymentMethod === 'card' ? 'selected' : ''}`}
-                      onClick={() => setPaymentMethod('card')}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <i className="fa-solid fa-credit-card" style={{ fontSize: '1.2rem', color: 'var(--primary)' }}></i>
-                        <div>
-                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>Credit / Debit Cards</h4>
-                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>Visa, MasterCard, RuPay</p>
-                        </div>
-                      </div>
-                      <i className={`fa-solid ${paymentMethod === 'card' ? 'fa-circle-check' : 'fa-circle'}`} style={{ color: paymentMethod === 'card' ? 'var(--primary)' : 'rgba(24,24,27,0.1)', fontSize: '1.1rem' }}></i>
-                    </div>
-
-                    <div 
-                      className={`payment-method-item ${paymentMethod === 'netbanking' ? 'selected' : ''}`}
-                      onClick={() => setPaymentMethod('netbanking')}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                        <i className="fa-solid fa-building-columns" style={{ fontSize: '1.2rem', color: 'var(--primary)' }}></i>
-                        <div>
-                          <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: 0, color: 'var(--text-dark)' }}>Net Banking</h4>
-                          <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)', margin: 0 }}>All Indian commercial banks</p>
-                        </div>
-                      </div>
-                      <i className={`fa-solid ${paymentMethod === 'netbanking' ? 'fa-circle-check' : 'fa-circle'}`} style={{ color: paymentMethod === 'netbanking' ? 'var(--primary)' : 'rgba(24,24,27,0.1)', fontSize: '1.1rem' }}></i>
-                    </div>
-                  </div>
-
-                  <div className="wizard-buttons">
-                    <button className="btn btn-secondary btn-wizard-prev" onClick={handlePrev}>
-                      <i className="fa-solid fa-arrow-left" style={{ marginRight: '0.5rem' }}></i> Previous
-                    </button>
-                    <button 
-                      className="btn btn-primary" 
-                      id="checkout-pay-btn" 
-                      style={{ flexGrow: 1, maxWidth: '300px', justifyContent: 'center' }}
-                      onClick={handlePaySecurely}
-                    >
-                      Pay Securely <i className="fa-solid fa-credit-card" style={{ marginLeft: '0.5rem' }}></i>
-                    </button>
-                  </div>
-                </div>
-              )}
-
-            </div>
-
-            {/* Right Column: Sticky invoice summary */}
-            <aside className="booking-summary-column summary-sticky">
-              <div className="summary-card glass-card" style={{ padding: '2rem' }}>
-                <h3 style={{ fontWeight: 800, fontSize: '1.25rem', borderBottom: '1px solid rgba(24,24,27,0.05)', paddingBottom: '1rem' }}>Rental Invoice</h3>
-                
-                <div className="summary-details-list">
-                  <div className="summary-row">
-                    <span style={{ color: 'var(--text-muted)' }}>Console Pack</span>
-                    <span style={{ fontWeight: 600 }}>{selectedPlan.name}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span style={{ color: 'var(--text-muted)' }}>Base Cost</span>
-                    <span style={{ fontWeight: 600, color: 'var(--primary)' }}>₹{selectedPlan.price.toLocaleString()}</span>
-                  </div>
-                  <div className="summary-row">
-                    <span style={{ color: 'var(--text-muted)' }}>Duration Limit</span>
-                    <span style={{ fontWeight: 600 }}>{selectedPlan.duration}</span>
-                  </div>
-                  {extraControllers > 0 && (
-                    <>
-                      <div className="summary-row">
-                        <span style={{ color: 'var(--text-muted)' }}>Extra Controllers</span>
-                        <span style={{ fontWeight: 600 }}>{extraControllers}</span>
-                      </div>
-                      <div className="summary-row">
-                        <span style={{ color: 'var(--text-muted)' }}>Controllers Cost</span>
-                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>₹{controllersCost.toLocaleString()}</span>
-                      </div>
-                    </>
-                  )}
-                  <div className="summary-row" style={{ flexDirection: 'column', gap: '0.3rem' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>Included Games:</span>
-                    <span style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-dark)' }}>
-                      Top Games Pre-installed + PS Plus Deluxe Sub
-                    </span>
-                  </div>
-                </div>
-
-                {/* Coupon Form */}
-                <form onSubmit={applyCoupon} className="promo-coupon-form">
-                  <input 
-                    type="text" 
-                    id="coupon-input" 
-                    className="form-input" 
-                    placeholder="PROMO CODE" 
-                    aria-label="Enter promo code"
-                    value={couponInput}
-                    onChange={(e) => setCouponInput(e.target.value)}
-                  />
-                  <button type="submit" className="btn btn-primary btn-sm" id="coupon-form-btn">Apply</button>
-                </form>
-
-                {couponMessage.text && (
-                  <span 
-                    id="coupon-message" 
-                    style={{ 
-                      display: 'block', 
-                      fontSize: '0.78rem', 
-                      fontWeight: 600, 
-                      marginTop: '-0.8rem', 
-                      marginBottom: '1rem',
-                      color: couponMessage.isError ? '#EF4444' : 'var(--success)' 
-                    }}
-                  >
-                    {couponMessage.text}
-                  </span>
-                )}
-
-                <div className="summary-details-list" style={{ border: 'none', padding: 0 }}>
-                  <div className="summary-row total">
-                    <span>Grand Total</span>
-                    <span id="summary-total">₹{grandTotal.toLocaleString()}</span>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  <i className="fa-solid fa-shield-halved" style={{ color: 'var(--success)' }}></i>
-                  <span>256-bit Secure SSL Connection</span>
-                </div>
-              </div>
-            </aside>
-
-          </div>
+    <section className="booking-wizard-wrapper" style={{ paddingBottom: '6rem' }}>
+      <div className="container" style={{ maxWidth: '900px' }}>
+        
+        {/* Ant Design Steps Indicator */}
+        <div style={{ padding: '2.5rem 0' }}>
+          <Steps
+            current={currentStep}
+            onChange={(step) => {
+              // Only allow switching to steps already unlocked or visited
+              if (step < currentStep) dispatch(setStep(step));
+            }}
+            items={[
+              { title: 'Pass Details', icon: <ShoppingOutlined /> },
+              { title: 'Contact', icon: <UserOutlined /> },
+              { title: 'Location', icon: <EnvironmentOutlined /> },
+              { title: 'Invoice & Pay', icon: <DollarOutlined /> }
+            ]}
+          />
         </div>
-      </section>
 
-      {/* RAZORPAY POPUP MODAL */}
-      {isRazorpayOpen && (
-        <div className="razorpay-popup open" id="razorpay-modal">
-          <div className="razorpay-card">
-            
-            {/* Header */}
-            <div className="razorpay-header">
-              <div className="razorpay-header-left">
-                <i className="fa-solid fa-gamepad" style={{ color: '#4A90E2', fontSize: '1.2rem' }}></i>
-                <div>
-                  <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#FFFFFF', margin: 0 }}>GamingStation50</h4>
-                  <span style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)' }}>Order Rent Reservation</span>
-                </div>
-              </div>
-              <button className="razorpay-close-btn" aria-label="Cancel transaction" onClick={() => setIsRazorpayOpen(false)}>
-                <i className="fa-solid fa-xmark"></i>
-              </button>
+        {/* STEP 1: PLAN SELECTION & CONTROLLERS */}
+        {currentStep === 0 && (
+          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+            <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
+              Configure Rental Package
+            </h3>
+
+            <div style={{ marginBottom: '2rem' }}>
+              <label style={{ fontWeight: 600, display: 'block', marginBottom: '0.8rem', color: 'var(--text-dark)' }}>
+                Select Rental Pass Duration:
+              </label>
+              <select 
+                className="form-input" 
+                value={selectedPlanId} 
+                onChange={(e) => dispatch(selectPlan(e.target.value))}
+                style={{ width: '100%', height: '50px', fontSize: '1rem', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '0 1rem', background: 'var(--glass-bg)', color: 'var(--text-dark)' }}
+              >
+                <optgroup label="Short-Term Session Plans">
+                  <option value="oneday">1 Day Rent — ₹699</option>
+                  <option value="twodays">2 Days Rent — ₹1,399</option>
+                  <option value="threedays">3 Days Rent — ₹1,999</option>
+                  <option value="fourdays">4 Days Rent — ₹2,699</option>
+                </optgroup>
+                <optgroup label="Long-Term Campaign Passes">
+                  <option value="fifteendays">15 Days Pass — ₹4,999</option>
+                  <option value="onemonth">1 Month Subscription — ₹7,999</option>
+                  <option value="twomonths">2 Months Ultimate — ₹13,999</option>
+                  <option value="threemonths">3 Months VIP Gamer — ₹19,999</option>
+                </optgroup>
+              </select>
             </div>
 
-            {/* Amount Showcase */}
-            <div className="razorpay-amount-box">
-              <h4>Total Rent Charges</h4>
-              <span className="razorpay-amount">₹{grandTotal.toLocaleString()}</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(var(--primary-rgb),0.04)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(var(--primary-rgb),0.1)', marginBottom: '2rem' }}>
+              <div>
+                <h5 style={{ fontWeight: 700, margin: 0, fontSize: '0.98rem', color: 'var(--text-dark)' }}>Additional DualSense Controller</h5>
+                <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
+                  Add secondary controllers for multiplayer co-op sessions (+₹150/day).
+                </p>
+              </div>
+              <InputNumber
+                min={0}
+                max={3}
+                value={extraControllers}
+                onChange={(val) => dispatch(setExtraControllers(val || 0))}
+                size="large"
+                style={{ borderRadius: '8px' }}
+              />
             </div>
 
-            {/* Methods Panel */}
-            <div className="razorpay-methods-list">
-              <h5 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'rgba(255,255,255,0.4)', marginBottom: '0.2rem' }}>
-                Select Payment Method
-              </h5>
-              
-              {/* Method 1: Google Pay / PhonePe UPI */}
-              <div 
-                className="razorpay-method-item" 
-                style={{ border: razorpayMethod === 'upi' ? '1px solid #3182CE' : 'none' }}
-                onClick={() => setRazorpayMethod('upi')}
-              >
-                <div className="razorpay-method-details">
-                  <i className="fa-brands fa-google-pay" style={{ fontSize: '1.5rem', color: '#FFB800' }}></i>
-                  <span>UPI Apps (Google Pay, BHIM, PhonePe)</span>
-                </div>
-                <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}></i>
-              </div>
-
-              {/* Method 2: Cards */}
-              <div 
-                className="razorpay-method-item" 
-                style={{ border: razorpayMethod === 'card' ? '1px solid #3182CE' : 'none' }}
-                onClick={() => setRazorpayMethod('card')}
-              >
-                <div className="razorpay-method-details">
-                  <i className="fa-solid fa-credit-card" style={{ color: '#E2E8F0' }}></i>
-                  <span>Card (Visa, MasterCard, RuPay)</span>
-                </div>
-                <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}></i>
-              </div>
-
-              {/* Method 3: NetBanking */}
-              <div 
-                className="razorpay-method-item" 
-                style={{ border: razorpayMethod === 'netbanking' ? '1px solid #3182CE' : 'none' }}
-                onClick={() => setRazorpayMethod('netbanking')}
-              >
-                <div className="razorpay-method-details">
-                  <i className="fa-solid fa-building-columns" style={{ color: '#E2E8F0' }}></i>
-                  <span>Netbanking (All Indian Banks)</span>
-                </div>
-                <i className="fa-solid fa-chevron-right" style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)' }}></i>
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button type="primary" size="large" onClick={handleStep1Submit} style={{ borderRadius: '8px', padding: '0 2rem' }}>
+                Continue to Details
+              </Button>
             </div>
+          </Card>
+        )}
 
-            {/* Pay CTA */}
-            <button 
-              className="razorpay-pay-btn" 
-              onClick={handleRazorpaySuccess}
-              disabled={isProcessingPayment}
-              style={{ backgroundColor: isProcessingPayment ? '#4A5568' : '#3182CE', cursor: isProcessingPayment ? 'not-allowed' : 'pointer' }}
+        {/* STEP 2: CONTACT INFORMATION */}
+        {currentStep === 1 && (
+          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+            <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
+              Contact Information
+            </h3>
+
+            <Form
+              form={form2}
+              layout="vertical"
+              onFinish={handleStep2Submit}
+              requiredMark={false}
             >
-              {isProcessingPayment ? 'Processing Secure Payment...' : 'Pay Securely'}
-            </button>
+              <Form.Item
+                label="Full Name"
+                name="name"
+                rules={[{ required: true, message: 'Please enter your full name' }]}
+              >
+                <Input prefix={<UserOutlined />} placeholder="Jane Doe" size="large" />
+              </Form.Item>
 
-            {/* SSL Seal */}
-            <div className="razorpay-secured">
-              <i className="fa-solid fa-lock" style={{ color: '#34A853' }}></i>
-              <span>Razorpay Secure Checkout • Verified PCI-DSS Compliant</span>
+              <Form.Item
+                label="Mobile Number"
+                name="phone"
+                rules={[
+                  { required: true, message: 'Please enter your mobile number' },
+                  { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
+                ]}
+              >
+                <Input prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
+              </Form.Item>
+
+              <Form.Item
+                label="Email Address"
+                name="email"
+                rules={[
+                  { required: true, message: 'Please enter your email address' },
+                  { type: 'email', message: 'Please enter a valid email' }
+                ]}
+              >
+                <Input prefix={<MailOutlined />} placeholder="jane.doe@gmail.com" size="large" />
+              </Form.Item>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+                <Button size="large" onClick={() => dispatch(setStep(0))} style={{ borderRadius: '8px' }}>
+                  Back
+                </Button>
+                <Button type="primary" htmlType="submit" size="large" style={{ borderRadius: '8px' }}>
+                  Select Location
+                </Button>
+              </div>
+            </Form>
+          </Card>
+        )}
+
+        {/* STEP 3: LOCATION ADDRESS MAP */}
+        {currentStep === 2 && (
+          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+            <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
+              Confirm Delivery Location
+            </h3>
+            
+            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem' }}>
+              <Input 
+                prefix={<CompassOutlined />} 
+                placeholder="Search neighborhood or society, e.g. Indiranagar, Bangalore" 
+                value={mapSearchText}
+                onChange={(e) => setMapSearchText(e.target.value)}
+                onPressEnter={handleMapSearch}
+                size="large"
+              />
+              <Button type="primary" onClick={handleMapSearch} size="large" style={{ borderRadius: '8px' }}>
+                Search
+              </Button>
             </div>
 
+            {/* LEAFLET MAP ELEMENT */}
+            <div 
+              ref={mapContainerRef} 
+              style={{ 
+                height: '350px', 
+                width: '100%', 
+                borderRadius: '12px', 
+                marginBottom: '1.5rem',
+                border: '1px solid var(--glass-border)',
+                zIndex: 1
+              }}
+            ></div>
+
+            <Form form={form3} layout="vertical">
+              <Form.Item label="Detailed Address (Auto-selected or modify)">
+                <Input.TextArea
+                  rows={3}
+                  value={customerInfo.address}
+                  onChange={(e) => dispatch(updateCustomerInfo({ address: e.target.value }))}
+                  placeholder="Street name, flat number, landmark details"
+                  size="large"
+                />
+              </Form.Item>
+            </Form>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
+              <Button size="large" onClick={() => dispatch(setStep(1))} style={{ borderRadius: '8px' }}>
+                Back
+              </Button>
+              <Button type="primary" size="large" onClick={handleStep3Submit} style={{ borderRadius: '8px' }}>
+                Go to Payment
+              </Button>
+            </div>
+          </Card>
+        )}
+
+        {/* STEP 4: INVOICE SUMMARY & PAY */}
+        {currentStep === 3 && (
+          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+            <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
+              Order Invoice Summary
+            </h3>
+
+            {/* Billing breakdown */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderBottom: '1px solid rgba(24,24,27,0.08)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>{PLAN_PRICES[selectedPlanId]?.name} Base Rent</span>
+                <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>₹{baseCost}</span>
+              </div>
+              
+              {extraControllers > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Extra Controller ({extraControllers} qty x {durationDays} days)</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>+₹{controllerCharges}</span>
+                </div>
+              )}
+
+              {discount > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--success)', fontWeight: 600 }}>Discount ({promoCode})</span>
+                  <span style={{ fontWeight: 700, color: 'var(--success)' }}>-₹{discount}</span>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>KYC Verification Fee</span>
+                <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span style={{ color: 'var(--text-muted)' }}>Doorstep Express Setup & Pickup</span>
+                <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
+              </div>
+            </div>
+
+            {/* Promo Code Input */}
+            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem' }}>
+              <Input 
+                placeholder="Enter Coupon Code (e.g. GAME50)" 
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                size="large"
+              />
+              <Button type="primary" onClick={handleApplyPromo} size="large" style={{ borderRadius: '8px' }}>
+                Apply
+              </Button>
+            </div>
+
+            {/* Grand Total */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(var(--primary-rgb),0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem' }}>
+              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-dark)' }}>Grand Total</span>
+              <span style={{ fontWeight: 900, fontSize: '1.8rem', color: 'var(--primary)' }}>₹{grandTotal}</span>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Button size="large" onClick={() => dispatch(setStep(2))} style={{ borderRadius: '8px' }}>
+                Back
+              </Button>
+              <Button type="primary" size="large" onClick={handleProcessPayment} style={{ borderRadius: '8px', padding: '0 2.5rem' }}>
+                Pay Securely
+              </Button>
+            </div>
+          </Card>
+        )}
+
+      </div>
+
+      {/* SECURE PAYMENT SIMULATION MODAL */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(24,24,27,0.06)' }}>
+            <span style={{ background: '#092f94', color: '#ffffff', padding: '0.4rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 800 }}>RP</span>
+            <span style={{ fontWeight: 800, fontSize: '1.15rem' }}>Razorpay Secure Checkout</span>
           </div>
+        }
+        open={isPaymentModalOpen}
+        onCancel={() => setIsPaymentModalOpen(false)}
+        footer={null}
+        centered
+        width={400}
+      >
+        <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
+          <ShoppingOutlined style={{ fontSize: '3rem', color: 'var(--primary)', marginBottom: '1rem' }} />
+          <h4 style={{ fontWeight: 800, fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>GamingStation50 Rental Service</h4>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Order Transaction: #GS50-TXN-98782</p>
+
+          <div style={{ background: '#f4f6fc', padding: '1rem', borderRadius: '8px', margin: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Amount to Pay</span>
+            <span style={{ fontWeight: 800, color: 'var(--text-dark)', fontSize: '1.2rem' }}>₹{totalAmount}</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
+            <Button 
+              type="primary" 
+              size="large" 
+              icon={<CheckCircleOutlined />} 
+              onClick={handleConfirmPayment}
+              style={{ width: '100%', borderRadius: '8px', background: '#22c55e', borderColor: '#22c55e' }}
+            >
+              Confirm Sim Payment
+            </Button>
+            <Button 
+              size="large" 
+              onClick={() => setIsPaymentModalOpen(false)}
+              style={{ width: '100%', borderRadius: '8px' }}
+            >
+              Cancel Payment
+            </Button>
+          </div>
+
+          <p style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            This is a secure sandbox gateway simulation. Do not share PINs/passwords.
+          </p>
         </div>
-      )}
-    </>
+      </Modal>
+
+    </section>
   );
 }
