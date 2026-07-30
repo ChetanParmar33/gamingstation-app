@@ -245,7 +245,7 @@ export default function Book() {
       formData.append('promoCode', promoCode || '');
       formData.append('screenshot', screenshotFile);
 
-      const response = await fetch('http://localhost:5000/api/bookings/create', {
+      const response = await fetch(`http://${window.location.hostname}:5000/api/bookings/create`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`

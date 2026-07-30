@@ -16,10 +16,12 @@ export default function Login() {
   const [signupForm] = CForm.useForm();
   const [forgotForm] = CForm.useForm();
 
+  const getApiUrl = (endpoint) => `http://${window.location.hostname}:5000${endpoint}`;
+
   // Handle Login API call
   const onLoginFinish = async (values) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -45,7 +47,7 @@ export default function Login() {
   // Handle Signup API call
   const onSignupFinish = async (values) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(getApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values)
@@ -73,7 +75,7 @@ export default function Login() {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+      const response = await fetch(getApiUrl('/api/auth/reset-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { CButton } from './custom';
-import { SunOutlined, MoonOutlined } from '@ant-design/icons';
 import { toggleTheme } from '../store/themeSlice';
+import { FaGamepad, FaPhoneAlt, FaChevronDown, FaChevronUp, FaRegUser } from 'react-icons/fa';
+import { FiSun, FiMoon } from 'react-icons/fi';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isMobileSubmenuOpen, setIsMobileSubmenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const themeMode = useSelector((state) => state.theme.mode);
 
@@ -35,13 +37,23 @@ export default function Header() {
     setIsMobileOpen(!isMobileOpen);
   };
 
-  const toggleMobileSubmenu = (e) => {
-    e.preventDefault();
-    setIsMobileSubmenuOpen(!isMobileSubmenuOpen);
+  const handleNavClick = (e, path, hashId) => {
+    if (hashId) {
+      if (location.pathname === '/') {
+        e.preventDefault();
+        const element = document.getElementById(hashId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+        setIsMobileOpen(false);
+      } else {
+        navigate(`/${path}`);
+      }
+    }
   };
 
   const isActive = (path) => {
-    if (path === '/' && location.pathname === '/') return 'active';
+    if (path === '/' && location.pathname === '/' && !location.hash) return 'active';
     if (path !== '/' && location.pathname.startsWith(path)) return 'active';
     return '';
   };
@@ -53,68 +65,66 @@ export default function Header() {
         id="sticky-header"
       >
         <div className="container header-container">
-          <Link to="/" className="logo" id="header-logo">
-            <i className="fa-solid fa-gamepad"></i>
-            <div>
-              <span>GamingStation50</span>
-              <span className="logo-sub">Rent • Play • Enjoy</span>
-            </div>
+          {/* Logo Design: GAMING STATION 50 */}
+          <Link to="/" className="logo-container" id="header-logo">
+            <span className="logo-gaming-station">
+              <span className="logo-gamepad"><FaGamepad /></span>
+              <span className="logo-text">GAMING<br/>STATION</span>
+            </span>
+            <span className="logo-box-50">50</span>
           </Link>
 
+          {/* Navigation Links */}
           <nav className="main-nav" id="desktop-nav">
             <div className="nav-item">
               <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
             </div>
-            
-            <div className={`nav-item dropdown ${isMobileSubmenuOpen ? 'active' : ''}`}>
-              <a 
-                href="#" 
-                className="nav-link dropdown-toggle" 
-                onClick={toggleMobileSubmenu}
-                aria-haspopup="true" 
-                aria-expanded={isMobileSubmenuOpen}
-              >
-                Services <i className="fa-solid fa-chevron-down dropdown-icon"></i>
-              </a>
-              <div className="dropdown-menu">
-                <Link to="/plans" className="dropdown-item">Rental Plans & Passes</Link>
-                <Link to="/book" className="dropdown-item font-weight-bold">Book PS5 Now</Link>
-              </div>
+            <div className="nav-item">
+              <a href="#pricing-plans" onClick={(e) => handleNavClick(e, '#pricing-plans', 'pricing-plans')} className="nav-link">Plans</a>
             </div>
-
+            <div className="nav-item">
+              <a href="#games-library" onClick={(e) => handleNavClick(e, '#games-library', 'games-library')} className="nav-link">Games</a>
+            </div>
+            <div className="nav-item">
+              <a href="#how-it-works" onClick={(e) => handleNavClick(e, '#how-it-works', 'how-it-works')} className="nav-link">How It Works</a>
+            </div>
+            <div className="nav-item">
+              <a href="#showcase-gallery" onClick={(e) => handleNavClick(e, '#showcase-gallery', 'showcase-gallery')} className="nav-link">Gallery</a>
+            </div>
+            <div className="nav-item">
+              <a href="#reviews" onClick={(e) => handleNavClick(e, '#reviews', 'reviews')} className="nav-link">Reviews</a>
+            </div>
             <div className="nav-item">
               <Link to="/faq" className={`nav-link ${isActive('/faq')}`}>FAQ</Link>
             </div>
             <div className="nav-item">
-              <Link to="/about" className={`nav-link ${isActive('/about')}`}>About Us</Link>
-            </div>
-            <div className="nav-item">
-              <Link to="/contact" className={`nav-link ${isActive('/contact')}`}>Contact</Link>
+              <Link to="/about" className={`nav-link ${isActive('/about')}`}>Contact</Link>
             </div>
           </nav>
 
+          {/* Header Action Items */}
           <div className="header-actions">
-            <CButton
-              type="text"
-              shape="circle"
-              icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
-              onClick={() => dispatch(toggleTheme())}
-              style={{ marginRight: '0.5rem' }}
-            />
-            <Link 
-              to="/login" 
-              className={`btn btn-secondary btn-sm ${isActive('/login')}`} 
-              id="btn-login-nav"
-            >
-              <i className="fa-regular fa-user"></i> Login
-            </Link>
+            {/* Phone Number with Icon */}
+            <a href="tel:+917900980514" className="header-phone-link">
+              <FaPhoneAlt className="phone-icon-nav" /> +91 79009 80514
+            </a>
+
             <Link 
               to="/book" 
-              className={`btn btn-primary btn-sm ${isActive('/book')}`} 
+              className={`btn btn-primary btn-sm header-book-btn ${isActive('/book')}`} 
               id="btn-book-nav"
             >
               Book Now
             </Link>
+
+            <CButton
+              type="text"
+              shape="circle"
+              icon={themeMode === 'dark' ? <FiSun style={{ fontSize: '18px', color: '#fbbf24' }} /> : <FiMoon style={{ fontSize: '18px', color: '#1e293b' }} />}
+              onClick={() => dispatch(toggleTheme())}
+              className="theme-toggle-btn"
+            />
+
             <button 
               className={`hamburger ${isMobileOpen ? 'active' : ''}`} 
               id="hamburger-menu" 
@@ -138,42 +148,37 @@ export default function Header() {
       ></div>
       <aside className={`mobile-menu ${isMobileOpen ? 'active' : ''}`} id="mobile-nav" aria-label="Mobile Navigation Menu">
         <div className="mobile-links">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <span style={{ fontWeight: 800, color: 'var(--text-dark)' }}>Theme</span>
             <CButton
               type="text"
               shape="circle"
-              icon={themeMode === 'dark' ? <SunOutlined style={{ fontSize: '18px', color: '#fbbf24' }} /> : <MoonOutlined style={{ fontSize: '18px', color: '#1e293b' }} />}
+              icon={themeMode === 'dark' ? <FiSun style={{ fontSize: '18px', color: '#fbbf24' }} /> : <FiMoon style={{ fontSize: '18px', color: '#1e293b' }} />}
               onClick={() => dispatch(toggleTheme())}
             />
           </div>
-          <Link to="/" className="mobile-link">Home</Link>
           
-          <div className="mobile-link-group">
-            <a 
-              href="#" 
-              className="mobile-link mobile-submenu-trigger"
-              onClick={toggleMobileSubmenu}
-            >
-              Plans <i className={`fa-solid fa-chevron-${isMobileSubmenuOpen ? 'up' : 'down'}`} style={{ marginLeft: '0.5rem' }}></i>
-            </a>
-            <div className={`mobile-submenu ${isMobileSubmenuOpen ? 'active' : ''}`} style={{ display: isMobileSubmenuOpen ? 'block' : 'none' }}>
-              <Link to="/plans">1 Day Plan</Link>
-              <Link to="/plans">2 Days Plan</Link>
-              <Link to="/plans">3 Days Plan</Link>
-              <Link to="/plans?term=short">1 Week Pass</Link>
-              <Link to="/plans?term=long">Long-term Subscriptions</Link>
-            </div>
-          </div>
-
-          <Link to="/about" className="mobile-link">About Us</Link>
-          <Link to="/contact" className="mobile-link">Contact</Link>
+          <Link to="/" className="mobile-link" onClick={() => setIsMobileOpen(false)}>Home</Link>
+          
+          <a href="#pricing-plans" onClick={(e) => handleNavClick(e, '#pricing-plans', 'pricing-plans')} className="mobile-link">Plans</a>
+          <a href="#games-library" onClick={(e) => handleNavClick(e, '#games-library', 'games-library')} className="mobile-link">Games</a>
+          <a href="#how-it-works" onClick={(e) => handleNavClick(e, '#how-it-works', 'how-it-works')} className="mobile-link">How It Works</a>
+          <a href="#showcase-gallery" onClick={(e) => handleNavClick(e, '#showcase-gallery', 'showcase-gallery')} className="mobile-link">Gallery</a>
+          <a href="#reviews" onClick={(e) => handleNavClick(e, '#reviews', 'reviews')} className="mobile-link">Reviews</a>
+          
+          <Link to="/faq" className="mobile-link" onClick={() => setIsMobileOpen(false)}>FAQ</Link>
+          <Link to="/about" className="mobile-link" onClick={() => setIsMobileOpen(false)}>Contact</Link>
+          
+          <a href="tel:+917900980514" className="mobile-link mobile-phone-display" style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
+            <FaPhoneAlt /> +91 79009 80514
+          </a>
         </div>
+        
         <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          <Link to="/login" className="btn btn-secondary" style={{ width: '100%' }}>
-            <i className="fa-regular fa-user"></i> Login / Signup
+          <Link to="/login" className="btn btn-secondary" style={{ width: '100%' }} onClick={() => setIsMobileOpen(false)}>
+            <FaRegUser style={{ marginRight: '0.5rem' }} /> Login / Signup
           </Link>
-          <Link to="/book" className="btn btn-primary" style={{ width: '100%' }}>Book Now</Link>
+          <Link to="/book" className="btn btn-primary" style={{ width: '100%' }} onClick={() => setIsMobileOpen(false)}>Book Now</Link>
         </div>
       </aside>
     </>

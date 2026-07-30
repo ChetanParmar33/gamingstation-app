@@ -284,29 +284,64 @@ ul {
 }
 
 /* Logo */
-.logo {
+.logo-container {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    font-size: 1.4rem;
-    font-weight: 800;
-    color: var(--text-dark);
+    gap: 0.5rem;
+    text-decoration: none;
 }
 
-.logo i {
-    font-size: 1.8rem;
+.logo-gaming-station {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.logo-gamepad {
+    font-size: 1.6rem;
     color: var(--primary);
+    display: flex;
+    align-items: center;
     animation: pulseLogo 3s infinite ease-in-out;
 }
 
-.logo-sub {
-    font-size: 0.6rem;
+.logo-text {
+    font-size: 0.9rem;
+    font-weight: 900;
+    line-height: 1.0;
+    letter-spacing: 0.2px;
+    color: var(--text-dark);
+}
+
+.logo-box-50 {
+    background: var(--primary);
+    color: var(--white) !important;
+    font-size: 1.05rem;
+    font-weight: 900;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* Phone link in Header */
+.header-phone-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-dark);
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: var(--text-muted);
-    margin-top: -2px;
-    display: block;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.header-phone-link:hover {
+    color: var(--primary);
+}
+
+.phone-icon-nav {
+    color: var(--primary);
+    font-size: 0.85rem;
 }
 
 /* Desktop Nav */
@@ -2043,8 +2078,8 @@ ul {
 }
 
 @media (max-width: 992px) {
-    .main-nav, .header-actions .btn {
-        display: none;
+    .main-nav, .header-actions .btn, .header-phone-link, .header-book-btn {
+        display: none !important;
     }
     .hamburger {
         display: flex;
@@ -3549,6 +3584,798 @@ ul {
     .btn-sm {
         padding: 0.4rem 0.88rem !important;
         font-size: 0.78rem !important;
+    }
+}
+
+/* ==========================================================================
+   22. Home Page Exact Replica Styling (Image Matching)
+   ========================================================================== */
+
+/* Dark background styling defaults */
+.home-root-wrapper {
+    background-color: var(--background);
+    color: var(--text-dark);
+}
+
+/* Floating Game Covers stack in Hero */
+.hero-image-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.floating-game-cover {
+    position: absolute;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(164, 188, 252, 0.25);
+    border-radius: var(--radius-sm);
+    padding: 0.4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    box-shadow: var(--glow-shadow);
+    transition: var(--transition);
+    z-index: 10;
+    width: 90px;
+}
+
+.floating-game-cover img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.floating-game-cover span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.floating-game-cover:hover {
+    transform: translateY(-5px) scale(1.05);
+    border-color: var(--primary);
+}
+
+/* Float Positions */
+.cover-wwe {
+    top: 15%;
+    left: 5%;
+    transform: rotate(-10deg);
+}
+
+.cover-spiderman {
+    bottom: 30%;
+    right: 5%;
+    transform: rotate(8deg);
+}
+
+.cover-gow {
+    top: 10%;
+    right: 15%;
+    transform: rotate(5deg);
+}
+
+/* Gamers Trust styling under hero buttons */
+.hero-gamers-trust {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.happy-avatars-row {
+    display: flex;
+    align-items: center;
+}
+
+.happy-avatars-row img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid var(--background);
+    margin-left: -8px;
+}
+
+.happy-avatars-row img:first-child {
+    margin-left: 0;
+}
+
+.gamers-count-text {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+}
+
+.gamers-stars-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.stars-icons {
+    color: #f59e0b; /* Yellow rating stars */
+    font-size: 0.85rem;
+    display: flex;
+    gap: 1px;
+}
+
+.rating-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+/* Accent blue title helper */
+.accent-blue {
+    color: var(--primary) !important;
+}
+
+/* Plan duration label */
+.duration-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+/* Recommended plan style override */
+.recommended-plan {
+    border: 2px solid var(--primary) !important;
+    position: relative;
+}
+
+.recommended-badge {
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: var(--success);
+    color: var(--white);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    letter-spacing: 1px;
+}
+
+/* Plan Switch Tab Buttons */
+.plan-toggle-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
+}
+
+.plan-toggle-btn {
+    background: rgba(164, 188, 252, 0.05);
+    border: 1px solid rgba(164, 188, 252, 0.2);
+    color: var(--text-dark);
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.plan-toggle-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+    box-shadow: var(--glow-shadow);
+}
+
+/* Value bar below plans */
+.plans-bottom-value-bar {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding: 1.2rem;
+    background: rgba(164, 188, 252, 0.05);
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(164, 188, 252, 0.15);
+}
+
+.plans-bottom-value-bar span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.accent-icon {
+    color: var(--primary);
+}
+
+.view-all-plans-link {
+    color: var(--primary);
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.view-all-plans-link:hover {
+    letter-spacing: 0.5px;
+}
+
+/* What's Included Package Section styling */
+.package-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.package-item {
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.package-image-container {
+    height: 140px;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.package-console-img {
+    height: 100%;
+    object-fit: contain;
+}
+
+.package-controller-img {
+    height: 90px;
+    object-fit: contain;
+}
+
+/* PS Plus Deluxe Gold/Black badge */
+.ps-plus-deluxe-badge {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border: 2px solid #eab308; /* yellow gold border */
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    width: 130px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 10px 25px rgba(234, 179, 8, 0.15);
+}
+
+.ps-icon {
+    font-size: 2.2rem;
+    color: #eab308;
+    line-height: 1;
+    margin-bottom: 0.2rem;
+}
+
+.ps-title {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ps-tier {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: #eab308;
+    letter-spacing: 2px;
+}
+
+/* Cables visual box */
+.cables-visual-box {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.cable-connector {
+    width: 10px;
+    height: 40px;
+    background: linear-gradient(to bottom, #3b82f6, #1d4ed8);
+    border-radius: 2px;
+    position: relative;
+}
+
+.cable-connector::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    left: 3px;
+    width: 4px;
+    height: 30px;
+    background: #475569;
+}
+
+/* How It Works Steps */
+.how-works-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: 3.5rem;
+}
+
+.how-step-card {
+    padding: 2.5rem 2rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.step-number-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: var(--glow-shadow);
+}
+
+.step-icon-box {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Gallery real setups grid */
+.gallery-layout-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.gallery-main-item {
+    height: 380px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.gallery-main-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.gallery-main-item:hover img {
+    transform: scale(1.03);
+}
+
+.gallery-sub-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.gallery-sub-item {
+    height: 180px;
+    overflow: hidden;
+    padding: 0;
+}
+
+.gallery-sub-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: var(--transition);
+}
+
+.gallery-sub-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Testimonial slider items */
+.testimonials-slider-box {
+    max-width: 650px;
+    margin: 3.5rem auto 0 auto;
+}
+
+.testimonial-card-item {
+    padding: 2.5rem;
+}
+
+.testimonial-profile {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+
+.testimonial-profile img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    border: 2px solid var(--primary);
+    object-fit: cover;
+}
+
+.gamer-city {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    display: block;
+    margin-top: 1px;
+}
+
+.stars-glow {
+    color: #f59e0b;
+    font-size: 0.8rem;
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.testimonial-quote-text {
+    font-size: 1.05rem;
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text-dark);
+}
+
+.slider-navigation-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 1.8rem;
+}
+
+.slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(164, 188, 252, 0.3);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.slider-dot.active {
+    background: var(--primary);
+    width: 24px;
+    border-radius: 4px;
+}
+
+/* FAQ accordion layout with sticky WhatsApp box */
+.faq-main-wrapper {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr;
+    gap: 2rem;
+    margin-top: 3.5rem;
+    align-items: start;
+}
+
+.faq-two-col-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem;
+}
+
+.faq-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.faq-accordion-item {
+    padding: 1.2rem;
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.faq-accordion-item:hover {
+    border-color: rgba(9, 47, 148, 0.3);
+}
+
+.faq-accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.faq-accordion-header h3 {
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.faq-toggle-icon {
+    font-size: 1.1rem;
+    color: var(--primary);
+    display: flex;
+}
+
+.faq-accordion-body {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(164, 188, 252, 0.15);
+}
+
+.faq-accordion-body p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* WhatsApp box styling */
+.whatsapp-help-box {
+    padding: 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.whatsapp-icon-wrapper {
+    font-size: 3rem;
+    color: #25d366; /* WhatsApp Green */
+    margin-bottom: 1rem;
+}
+
+.whatsapp-help-box h4 {
+    margin-bottom: 0.3rem;
+}
+
+.whatsapp-help-box p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.btn-whatsapp {
+    background: #25d366;
+    color: #ffffff !important;
+    border: none;
+    font-weight: 700;
+}
+
+.btn-whatsapp:hover {
+    background: #20ba56;
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+}
+
+/* Footer presets value badges */
+.footer-presets-section {
+    background: rgba(15, 23, 42, 0.2);
+    border-top: 1px solid rgba(164, 188, 252, 0.1);
+    border-bottom: 1px solid rgba(164, 188, 252, 0.1);
+    padding: 2.5rem 0;
+    margin-top: 5rem;
+}
+
+.presets-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+}
+
+.preset-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.preset-icon {
+    font-size: 2.2rem;
+    color: var(--primary);
+}
+
+.preset-item h5 {
+    font-size: 0.95rem;
+    margin-bottom: 0.2rem;
+    font-weight: 700;
+}
+
+.preset-item p {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Main Footer structure */
+.footer-layout {
+    background: #04060d; /* Ultra deep blue/black background */
+    padding-top: 5rem;
+    color: #94a3b8;
+}
+
+.footer-links-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 1fr 1fr;
+    gap: 3rem;
+    padding-bottom: 4rem;
+}
+
+.footer-brand-col p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.footer-social-row {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.footer-social-row a {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(164, 188, 252, 0.1);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #94a3b8;
+    transition: var(--transition-fast);
+}
+
+.footer-social-row a:hover {
+    background: var(--primary);
+    color: #ffffff;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.footer-links-col h4 {
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+}
+
+.footer-links-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.footer-links-col ul li a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: var(--transition-fast);
+}
+
+.footer-links-col ul li a:hover {
+    color: var(--primary);
+    padding-left: 3px;
+}
+
+.footer-contact-details li {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+}
+
+.why-bullet-points li {
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
+
+.footer-bottom-copyright {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.5rem 0;
+    background: #020307;
+}
+
+.bottom-copyright-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+}
+
+.copyright-links {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.copyright-links a {
+    color: #64748b;
+    text-decoration: none;
+    transition: var(--transition-fast);
+}
+
+.copyright-links a:hover {
+    color: #94a3b8;
+}
+
+.copyright-links .divider {
+    color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   23. Home Page Responsiveness Tweaks (Mobile Image Alignment)
+   ========================================================================== */
+@media (max-width: 992px) {
+    .package-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .gallery-layout-grid {
+        grid-template-columns: 1fr;
+    }
+    .gallery-main-item {
+        height: 280px;
+    }
+    .faq-main-wrapper {
+        grid-template-columns: 1fr;
+    }
+    .footer-links-grid {
+        grid-template-columns: 1.5fr 1fr;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Floating game covers positioning override on mobile to prevent overflow */
+    .floating-game-cover {
+        display: none; /* Hide floating cards on small screens for better UX */
+    }
+    
+    .plans-bottom-value-bar {
+        flex-direction: column;
+        align-items: center;
+        gap: 0.8rem;
+    }
+    
+    .how-works-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .faq-two-col-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .presets-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .package-grid {
+        grid-template-columns: 1fr;
+    }
+    .footer-links-grid {
+        grid-template-columns: 1fr;
     }
 }
 
