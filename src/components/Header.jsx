@@ -61,7 +61,7 @@ export default function Header() {
             </div>
           </Link>
 
-          <nav className={`nav-links ${isMobileOpen ? 'active' : ''}`} id="desktop-nav">
+          <nav className="main-nav" id="desktop-nav">
             <div className="nav-item">
               <Link to="/" className={`nav-link ${isActive('/')}`}>Home</Link>
             </div>

@@ -3413,5 +3413,144 @@ ul {
     border-radius: var(--radius-lg);
 }
 
+/* ==========================================================================
+   21. Mobile Viewport Sizing & Spacing Fine-Tuning (Direct Polish)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* Set more compact mobile header height */
+    :root {
+        --header-height: 60px !important;
+    }
+    
+    .header-wrapper {
+        height: 60px !important;
+    }
+    
+    .header-wrapper.scrolled {
+        height: 60px !important;
+    }
+    
+    /* Make mobile header logo more compact to prevent wrapping */
+    .logo {
+        font-size: 1.15rem !important;
+        gap: 0.5rem !important;
+    }
+    
+    .logo i {
+        font-size: 1.4rem !important;
+    }
+    
+    .logo-sub {
+        font-size: 0.52rem !important;
+        letter-spacing: 1px !important;
+        margin-top: -1px !important;
+    }
+
+    .hamburger {
+        height: 16px !important;
+        width: 22px !important;
+    }
+    
+    /* Global Compact spacing override on mobile - less empty space */
+    .hero-section,
+    .highlights-section,
+    .how-section,
+    .plans-section,
+    .featured-console-section,
+    .games-section,
+    .why-section,
+    .testimonials-section,
+    .faq-section,
+    .newsletter-section,
+    .compare-section,
+    .booking-section,
+    .confirmation-section,
+    .track-section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+
+    .hero-section {
+        padding-top: calc(var(--header-height) + 1rem) !important;
+        padding-bottom: 2rem !important;
+    }
+    
+    .games-hero-section {
+        padding-top: 5rem !important;
+        padding-bottom: 2.2rem !important;
+    }
+
+    /* Font size scaling for smaller viewports */
+    h1, .hero-title {
+        font-size: 1.95rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    h2, .section-title {
+        font-size: 1.55rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    h3 {
+        font-size: 1.25rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    h4 {
+        font-size: 1.05rem !important;
+    }
+
+    p, span, li, a {
+        font-size: 0.88rem; /* slightly tighter body font */
+    }
+
+    .section-tag {
+        font-size: 0.72rem !important;
+        padding: 0.3rem 0.8rem !important;
+        margin-bottom: 0.6rem !important;
+    }
+
+    /* Tighter grid gap for layout grids */
+    .hero-grid,
+    .plans-grid,
+    .how-grid,
+    .why-grid,
+    .newsletter-grid,
+    .tracking-layout-grid,
+    .booking-payment-grid {
+        gap: 1.2rem !important;
+    }
+    
+    /* Extra padding fixes inside cards */
+    .glass-card {
+        padding: 1.8rem 1.2rem !important;
+    }
+    .auth-card {
+        padding: 1.8rem 1.2rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .container {
+        padding-right: 0.88rem !important;
+        padding-left: 0.88rem !important;
+    }
+    .glass-card {
+        padding: 1.5rem 1rem !important;
+    }
+    
+    /* Compact buttons on mobile screen */
+    .btn {
+        padding: 0.6rem 1.2rem !important;
+        font-size: 0.82rem !important;
+    }
+    .btn-sm {
+        padding: 0.4rem 0.88rem !important;
+        font-size: 0.78rem !important;
+    }
+}
+
 
 
