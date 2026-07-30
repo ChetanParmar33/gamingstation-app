@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Result, Button, Card } from 'antd';
-import { CheckCircleOutlined, PhoneOutlined, WhatsAppOutlined, HomeOutlined } from '@ant-design/icons';
+import { Result } from 'antd';
+import { PhoneOutlined, WhatsAppOutlined, HomeOutlined } from '@ant-design/icons';
+import { CButton, CCard } from '../components/custom';
 
 export default function Success() {
   const [bookingId, setBookingId] = useState('');
@@ -15,7 +16,7 @@ export default function Success() {
     <section className="confirmation-section">
       <div className="container" style={{ maxWidth: '700px' }}>
         
-        <Card className="glass-card" style={{ padding: '1rem', border: '1px solid var(--glass-border)' }}>
+        <CCard style={{ padding: '1rem', border: '1px solid var(--glass-border)' }}>
           <Result
             status="success"
             title={<span style={{ fontWeight: 900, fontSize: '2.2rem', color: 'var(--text-dark)' }}>Booking Confirmed!</span>}
@@ -25,21 +26,20 @@ export default function Success() {
               </p>
             }
             extra={[
-              <Button 
+              <CButton 
                 type="primary" 
                 key="track" 
                 icon={<WhatsAppOutlined />}
                 size="large"
                 href={`https://wa.me/919988776655?text=Hi%2C%20I%20want%20to%20track%20my%20order%20${bookingId}!`}
                 target="_blank"
-                style={{ borderRadius: '8px' }}
               >
                 Track Order via WhatsApp
-              </Button>,
+              </CButton>,
               <Link to="/" key="home">
-                <Button size="large" icon={<HomeOutlined />} style={{ borderRadius: '8px' }}>
+                <CButton size="large" icon={<HomeOutlined />}>
                   Return to Home
-                </Button>
+                </CButton>
               </Link>
             ]}
           >
@@ -68,7 +68,7 @@ export default function Success() {
               </div>
             </div>
           </Result>
-        </Card>
+        </CCard>
 
         <div style={{ marginTop: '3.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
           <PhoneOutlined style={{ color: 'var(--primary)' }} />

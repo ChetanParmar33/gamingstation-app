@@ -1,5 +1,5 @@
 import React from 'react';
-import { Collapse } from 'antd';
+import { CCollapse } from '../components/custom';
 
 const FAQ_LIST = [
   {
@@ -74,19 +74,11 @@ export default function FAQ() {
 
       {/* FAQ ACCORDION LIST */}
       <section className="container" style={{ paddingBottom: '6rem', maxWidth: '800px' }}>
-        <Collapse 
+        <CCollapse 
           items={FAQ_LIST} 
           defaultActiveKey={['1']} 
           ghost 
           expandIconPosition="end"
-          style={{
-            background: 'var(--glass-bg)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid var(--glass-border)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '1.5rem',
-            boxShadow: 'var(--glass-shadow)'
-          }}
         />
       </section>
     </>

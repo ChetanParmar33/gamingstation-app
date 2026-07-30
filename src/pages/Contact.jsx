@@ -1,11 +1,10 @@
 import React from 'react';
-import { Form, Input, Button, message } from 'antd';
-import { MailOutlined, PhoneOutlined, SendOutlined, InfoCircleOutlined, CompassOutlined, MessageOutlined } from '@ant-design/icons';
-
-const { TextArea } = Input;
+import { message } from 'antd';
+import { MailOutlined, PhoneOutlined, SendOutlined, CompassOutlined, MessageOutlined } from '@ant-design/icons';
+import { CForm, CInput, CButton } from '../components/custom';
 
 export default function Contact() {
-  const [form] = Form.useForm();
+  const [form] = CForm.useForm();
 
   const onFinish = (values) => {
     message.success('Message sent successfully! We will get back to you within 2 hours.');
@@ -33,22 +32,22 @@ export default function Contact() {
           <div className="glass-card" style={{ padding: '3rem 2.5rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.3rem', marginBottom: '2rem', color: 'var(--text-dark)' }}>Send Message</h3>
             
-            <Form
+            <CForm
               form={form}
               layout="vertical"
               onFinish={onFinish}
               requiredMark={false}
             >
               <div className="form-group-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1rem' }}>
-                <Form.Item
+                <CForm.Item
                   label="Your Full Name"
                   name="name"
                   rules={[{ required: true, message: 'Please enter your name' }]}
                   style={{ margin: 0 }}
                 >
-                  <Input placeholder="e.g. John Doe" size="large" />
-                </Form.Item>
-                <Form.Item
+                  <CInput placeholder="e.g. John Doe" size="large" />
+                </CForm.Item>
+                <CForm.Item
                   label="Email Address"
                   name="email"
                   rules={[
@@ -57,28 +56,28 @@ export default function Contact() {
                   ]}
                   style={{ margin: 0 }}
                 >
-                  <Input placeholder="name@domain.com" size="large" />
-                </Form.Item>
+                  <CInput placeholder="name@domain.com" size="large" />
+                </CForm.Item>
               </div>
 
-              <Form.Item
+              <CForm.Item
                 label="Inquiry Subject"
                 name="subject"
                 rules={[{ required: true, message: 'Please enter a subject' }]}
               >
-                <Input placeholder="e.g. Bulk Booking for Event" size="large" />
-              </Form.Item>
+                <CInput placeholder="e.g. Bulk Booking for Event" size="large" />
+              </CForm.Item>
 
-              <Form.Item
+              <CForm.Item
                 label="Detailed Message"
                 name="message"
                 rules={[{ required: true, message: 'Please enter your message' }]}
               >
-                <TextArea placeholder="Type details here..." rows={5} />
-              </Form.Item>
+                <CInput.TextArea placeholder="Type details here..." rows={5} />
+              </CForm.Item>
 
-              <Form.Item style={{ marginBottom: 0 }}>
-                <Button 
+              <CForm.Item style={{ marginBottom: 0 }}>
+                <CButton 
                   type="primary" 
                   htmlType="submit" 
                   icon={<SendOutlined />} 
@@ -86,9 +85,9 @@ export default function Contact() {
                   style={{ width: '100%', borderRadius: '12px' }}
                 >
                   Send Message
-                </Button>
-              </Form.Item>
-            </Form>
+                </CButton>
+              </CForm.Item>
+            </CForm>
           </div>
 
           {/* Contact Information Grid */}

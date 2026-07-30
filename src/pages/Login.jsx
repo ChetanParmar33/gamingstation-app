@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Tabs, Form, Input, Button, Select, Modal, message } from 'antd';
+import { Tabs, Modal, message } from 'antd';
 import { GoogleOutlined, MessageOutlined, BulbOutlined, LockOutlined, PhoneOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { loginUser } from '../store/userSlice';
+import { CForm, CInput, CButton, CSelect } from '../components/custom';
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login');
@@ -11,9 +12,9 @@ export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const [loginForm] = Form.useForm();
-  const [signupForm] = Form.useForm();
-  const [forgotForm] = Form.useForm();
+  const [loginForm] = CForm.useForm();
+  const [signupForm] = CForm.useForm();
+  const [forgotForm] = CForm.useForm();
 
   // Handle Login API call
   const onLoginFinish = async (values) => {
@@ -116,13 +117,13 @@ export default function Login() {
                     <h2 className="auth-title">Welcome Back</h2>
                     <p className="auth-subtitle">Enter your mobile number and password to log in and manage your rental passes.</p>
                     
-                    <Form
+                    <CForm
                       form={loginForm}
                       layout="vertical"
                       onFinish={onLoginFinish}
                       requiredMark={false}
                     >
-                      <Form.Item
+                      <CForm.Item
                         label="Registered Mobile Number"
                         name="phone"
                         rules={[
@@ -130,25 +131,25 @@ export default function Login() {
                           { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
                         ]}
                       >
-                        <Input 
+                        <CInput 
                           prefix={<PhoneOutlined />}
                           addonBefore="+91" 
                           placeholder="Enter 10-digit number" 
                           size="large" 
                         />
-                      </Form.Item>
+                      </CForm.Item>
 
-                      <Form.Item
+                      <CForm.Item
                         label="Password"
                         name="password"
                         rules={[{ required: true, message: 'Please enter your password' }]}
                       >
-                        <Input.Password 
+                        <CInput.Password 
                           prefix={<LockOutlined />}
                           placeholder="Enter Password" 
                           size="large" 
                         />
-                      </Form.Item>
+                      </CForm.Item>
 
                       <div style={{ textAlign: 'right', marginBottom: '1.5rem' }}>
                         <a 
@@ -161,15 +162,15 @@ export default function Login() {
                         </a>
                       </div>
 
-                      <Button 
+                      <CButton 
                         type="primary" 
                         htmlType="submit" 
                         size="large" 
                         style={{ width: '100%', borderRadius: '12px' }}
                       >
                         Log In
-                      </Button>
-                    </Form>
+                      </CButton>
+                    </CForm>
                   </div>
                 )
               },
@@ -181,21 +182,21 @@ export default function Login() {
                     <h2 className="auth-title">Create Gamer Profile</h2>
                     <p className="auth-subtitle">Register to rent PS5 consoles instantly with zero security deposit.</p>
                     
-                    <Form
+                    <CForm
                       form={signupForm}
                       layout="vertical"
                       onFinish={onSignupFinish}
                       requiredMark={false}
                     >
-                      <Form.Item
+                      <CForm.Item
                         label="Full Name"
                         name="name"
                         rules={[{ required: true, message: 'Please enter your full name' }]}
                       >
-                        <Input prefix={<UserOutlined />} placeholder="e.g. John Doe" size="large" />
-                      </Form.Item>
+                        <CInput prefix={<UserOutlined />} placeholder="e.g. John Doe" size="large" />
+                      </CForm.Item>
 
-                      <Form.Item
+                      <CForm.Item
                         label="Email Address"
                         name="email"
                         rules={[
@@ -203,10 +204,10 @@ export default function Login() {
                           { type: 'email', message: 'Please enter a valid email' }
                         ]}
                       >
-                        <Input prefix={<MailOutlined />} placeholder="name@company.com" size="large" />
-                      </Form.Item>
+                        <CInput prefix={<MailOutlined />} placeholder="name@company.com" size="large" />
+                      </CForm.Item>
 
-                      <Form.Item
+                      <CForm.Item
                         label="Mobile Number"
                         name="phone"
                         rules={[
@@ -214,10 +215,10 @@ export default function Login() {
                           { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
                         ]}
                       >
-                        <Input prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
-                      </Form.Item>
+                        <CInput prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
+                      </CForm.Item>
 
-                      <Form.Item
+                      <CForm.Item
                         label="Password"
                         name="password"
                         rules={[
@@ -225,55 +226,55 @@ export default function Login() {
                           { min: 6, message: 'Password must be at least 6 characters' }
                         ]}
                       >
-                        <Input.Password prefix={<LockOutlined />} placeholder="Min 6 characters" size="large" />
-                      </Form.Item>
+                        <CInput.Password prefix={<LockOutlined />} placeholder="Min 6 characters" size="large" />
+                      </CForm.Item>
 
-                      <Form.Item
+                      <CForm.Item
                         label="City Location"
                         name="city"
                         initialValue="Bangalore"
                       >
-                        <Select size="large">
-                          <Select.Option value="Bangalore">Bangalore</Select.Option>
-                          <Select.Option value="Mumbai">Mumbai</Select.Option>
-                          <Select.Option value="Delhi NCR">Delhi NCR</Select.Option>
-                          <Select.Option value="Pune">Pune</Select.Option>
-                          <Select.Option value="Hyderabad">Hyderabad</Select.Option>
-                          <Select.Option value="Chennai">Chennai</Select.Option>
-                        </Select>
-                      </Form.Item>
-
-                      <Button 
+                        <CSelect size="large">
+                          <CSelect.Option value="Bangalore">Bangalore</CSelect.Option>
+                          <CSelect.Option value="Mumbai">Mumbai</CSelect.Option>
+                          <CSelect.Option value="Delhi NCR">Delhi NCR</CSelect.Option>
+                          <CSelect.Option value="Pune">Pune</CSelect.Option>
+                          <CSelect.Option value="Hyderabad">Hyderabad</CSelect.Option>
+                          <CSelect.Option value="Chennai">Chennai</CSelect.Option>
+                        </CSelect>
+                      </CForm.Item>
+ 
+                      <CButton 
                         type="primary" 
                         htmlType="submit" 
                         size="large" 
                         style={{ width: '100%', marginTop: '1rem', borderRadius: '12px' }}
                       >
                         Sign Up Account
-                      </Button>
-                    </Form>
+                      </CButton>
+                    </CForm>
                   </div>
                 )
               }
             ]}
           />
-
+ 
           <div className="auth-body" style={{ borderTop: '1px solid rgba(24,24,27,0.06)', marginTop: '2rem', paddingTop: '1.5rem' }}>
             <div className="auth-divider" style={{ textAlign: 'center', margin: '0 0 1.5rem 0', color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600, letterSpacing: '1px' }}>
               <span>OR CONNECT WITH</span>
             </div>
-
+ 
             <div className="social-login-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-              <Button icon={<GoogleOutlined style={{ color: '#DB4437' }} />} style={{ borderRadius: '8px' }}>Google</Button>
-              <Button icon={<MessageOutlined style={{ color: '#7289DA' }} />} style={{ borderRadius: '8px' }}>Discord</Button>
-              <Button icon={<BulbOutlined style={{ color: '#003087' }} />} style={{ borderRadius: '8px' }}>PSN</Button>
+              <CButton icon={<GoogleOutlined style={{ color: '#DB4437' }} />} style={{ borderRadius: '8px' }}>Google</CButton>
+              <CButton icon={<MessageOutlined style={{ color: '#7289DA' }} />} style={{ borderRadius: '8px' }}>Discord</CButton>
+              <CButton icon={<BulbOutlined style={{ color: '#003087' }} />} style={{ borderRadius: '8px' }}>PSN</CButton>
             </div>
           </div>
-
+ 
         </div>
-
+ 
       </div>
-
+ 
       {/* FORGOT PASSWORD / PASSWORD RESET MODAL */}
       <Modal
         title={
@@ -291,14 +292,14 @@ export default function Login() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
             Enter your registered mobile number and set your new password directly below.
           </p>
-
-          <Form
+ 
+          <CForm
             form={forgotForm}
             layout="vertical"
             onFinish={onResetPasswordFinish}
             requiredMark={false}
           >
-            <Form.Item
+            <CForm.Item
               label="Registered Mobile Number"
               name="phone"
               rules={[
@@ -306,15 +307,15 @@ export default function Login() {
                 { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
               ]}
             >
-              <Input 
+              <CInput 
                 prefix={<PhoneOutlined />}
                 addonBefore="+91" 
                 placeholder="Enter 10-digit number" 
                 size="large" 
               />
-            </Form.Item>
-
-            <Form.Item
+            </CForm.Item>
+ 
+            <CForm.Item
               label="New Password"
               name="newPassword"
               rules={[
@@ -322,43 +323,43 @@ export default function Login() {
                 { min: 6, message: 'Password must be at least 6 characters' }
               ]}
             >
-              <Input.Password 
+              <CInput.Password 
                 prefix={<LockOutlined />}
                 placeholder="Min 6 characters" 
                 size="large" 
               />
-            </Form.Item>
-
-            <Form.Item
+            </CForm.Item>
+ 
+            <CForm.Item
               label="Confirm New Password"
               name="confirmPassword"
               rules={[{ required: true, message: 'Please confirm your new password' }]}
             >
-              <Input.Password 
+              <CInput.Password 
                 prefix={<LockOutlined />}
                 placeholder="Confirm password" 
                 size="large" 
               />
-            </Form.Item>
-
+            </CForm.Item>
+ 
             <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-              <Button 
+              <CButton 
                 onClick={() => setIsForgotModalOpen(false)} 
                 size="large"
                 style={{ flex: 1, borderRadius: '8px' }}
               >
                 Cancel
-              </Button>
-              <Button 
+              </CButton>
+              <CButton 
                 type="primary" 
                 htmlType="submit" 
                 size="large" 
                 style={{ flex: 1.5, borderRadius: '8px' }}
               >
                 Reset Password
-              </Button>
+              </CButton>
             </div>
-          </Form>
+          </CForm>
         </div>
       </Modal>
 

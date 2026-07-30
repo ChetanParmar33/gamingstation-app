@@ -23,6 +23,7 @@ import {
   markAsPaid,
   resetBooking
 } from '../store/bookingSlice';
+import { CForm, CInput, CButton, CCard, CSelect } from '../components/custom';
 
 const PLAN_PRICES = {
   'oneday': { name: '1 Day Plan', price: 699 },
@@ -57,8 +58,8 @@ export default function Book() {
   const [promoInput, setPromoInput] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  const [form2] = Form.useForm();
-  const [form3] = Form.useForm();
+  const [form2] = CForm.useForm();
+  const [form3] = CForm.useForm();
 
   // Leaflet references
   const mapRef = useRef(null);
@@ -294,7 +295,7 @@ export default function Book() {
 
         {/* STEP 1: PLAN SELECTION & CONTROLLERS */}
         {currentStep === 0 && (
-          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+          <CCard style={{ padding: '2rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
               Configure Rental Package
             </h3>
@@ -342,35 +343,35 @@ export default function Book() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button type="primary" size="large" onClick={handleStep1Submit} style={{ borderRadius: '8px', padding: '0 2rem' }}>
+              <CButton type="primary" size="large" onClick={handleStep1Submit} style={{ padding: '0 2rem' }}>
                 Continue to Details
-              </Button>
+              </CButton>
             </div>
-          </Card>
+          </CCard>
         )}
 
         {/* STEP 2: CONTACT INFORMATION */}
         {currentStep === 1 && (
-          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+          <CCard style={{ padding: '2rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
               Contact Information
             </h3>
 
-            <Form
+            <CForm
               form={form2}
               layout="vertical"
               onFinish={handleStep2Submit}
               requiredMark={false}
             >
-              <Form.Item
+              <CForm.Item
                 label="Full Name"
                 name="name"
                 rules={[{ required: true, message: 'Please enter your full name' }]}
               >
-                <Input prefix={<UserOutlined />} placeholder="Jane Doe" size="large" />
-              </Form.Item>
+                <CInput prefix={<UserOutlined />} placeholder="Jane Doe" size="large" />
+              </CForm.Item>
 
-              <Form.Item
+              <CForm.Item
                 label="Mobile Number"
                 name="phone"
                 rules={[
@@ -378,10 +379,10 @@ export default function Book() {
                   { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
                 ]}
               >
-                <Input prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
-              </Form.Item>
+                <CInput prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
+              </CForm.Item>
 
-              <Form.Item
+              <CForm.Item
                 label="Email Address"
                 name="email"
                 rules={[
@@ -389,30 +390,30 @@ export default function Book() {
                   { type: 'email', message: 'Please enter a valid email' }
                 ]}
               >
-                <Input prefix={<MailOutlined />} placeholder="jane.doe@gmail.com" size="large" />
-              </Form.Item>
+                <CInput prefix={<MailOutlined />} placeholder="jane.doe@gmail.com" size="large" />
+              </CForm.Item>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-                <Button size="large" onClick={() => dispatch(setStep(0))} style={{ borderRadius: '8px' }}>
+                <CButton size="large" onClick={() => dispatch(setStep(0))}>
                   Back
-                </Button>
-                <Button type="primary" htmlType="submit" size="large" style={{ borderRadius: '8px' }}>
+                </CButton>
+                <CButton type="primary" htmlType="submit" size="large">
                   Select Location
-                </Button>
+                </CButton>
               </div>
-            </Form>
-          </Card>
+            </CForm>
+          </CCard>
         )}
 
         {/* STEP 3: LOCATION ADDRESS MAP */}
         {currentStep === 2 && (
-          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+          <CCard style={{ padding: '2rem' }}>
             <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
               Confirm Delivery Location
             </h3>
             
             <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem' }}>
-              <Input 
+              <CInput 
                 prefix={<CompassOutlined />} 
                 placeholder="Search neighborhood or society, e.g. Indiranagar, Bangalore" 
                 value={mapSearchText}
@@ -420,9 +421,9 @@ export default function Book() {
                 onPressEnter={handleMapSearch}
                 size="large"
               />
-              <Button type="primary" onClick={handleMapSearch} size="large" style={{ borderRadius: '8px' }}>
+              <CButton type="primary" onClick={handleMapSearch} size="large">
                 Search
-              </Button>
+              </CButton>
             </div>
 
             {/* LEAFLET MAP ELEMENT */}
@@ -438,27 +439,27 @@ export default function Book() {
               }}
             ></div>
 
-            <Form form={form3} layout="vertical">
-              <Form.Item label="Detailed Address (Auto-selected or modify)">
-                <Input.TextArea
+            <CForm form={form3} layout="vertical">
+              <CForm.Item label="Detailed Address (Auto-selected or modify)">
+                <CInput.TextArea
                   rows={3}
                   value={customerInfo.address}
                   onChange={(e) => dispatch(updateCustomerInfo({ address: e.target.value }))}
                   placeholder="Street name, flat number, landmark details"
                   size="large"
                 />
-              </Form.Item>
-            </Form>
+              </CForm.Item>
+            </CForm>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '2rem' }}>
-              <Button size="large" onClick={() => dispatch(setStep(1))} style={{ borderRadius: '8px' }}>
+              <CButton size="large" onClick={() => dispatch(setStep(1))}>
                 Back
-              </Button>
-              <Button type="primary" size="large" onClick={handleStep3Submit} style={{ borderRadius: '8px' }}>
+              </CButton>
+              <CButton type="primary" size="large" onClick={handleStep3Submit}>
                 Go to Payment
-              </Button>
+              </CButton>
             </div>
-          </Card>
+          </CCard>
         )}
 
         {/* STEP 4: INVOICE SUMMARY & PAY via QR */}
@@ -466,7 +467,7 @@ export default function Book() {
           <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2rem' }}>
             
             {/* Invoice Left Panel */}
-            <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+            <CCard style={{ padding: '2rem' }}>
               <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
                 Order Invoice Summary
               </h3>
@@ -504,15 +505,15 @@ export default function Book() {
 
               {/* Promo Code Input */}
               <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem' }}>
-                <Input 
+                <CInput 
                   placeholder="Enter Coupon Code" 
                   value={promoInput}
                   onChange={(e) => setPromoInput(e.target.value)}
                   size="large"
                 />
-                <Button type="primary" onClick={handleApplyPromo} size="large" style={{ borderRadius: '8px' }}>
+                <CButton type="primary" onClick={handleApplyPromo} size="large">
                   Apply
-                </Button>
+                </CButton>
               </div>
 
               {/* Grand Total */}
@@ -522,14 +523,14 @@ export default function Book() {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Button size="large" onClick={() => dispatch(setStep(2))} style={{ borderRadius: '8px' }}>
+                <CButton size="large" onClick={() => dispatch(setStep(2))}>
                   Back
-                </Button>
+                </CButton>
               </div>
-            </Card>
+            </CCard>
 
             {/* QR Scanner & Screenshot Upload Right Panel */}
-            <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+            <CCard style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ textAlign: 'center', width: '100%' }}>
                 <h4 style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-dark)', marginBottom: '0.4rem' }}>
                   Pay via UPI QR Code
@@ -576,7 +577,7 @@ export default function Book() {
                 </div>
               </div>
 
-              <Button 
+              <CButton 
                 type="primary" 
                 size="large" 
                 icon={<CheckCircleOutlined />}
@@ -585,8 +586,8 @@ export default function Book() {
                 style={{ width: '100%', borderRadius: '12px', height: '50px', background: '#22c55e', borderColor: '#22c55e', fontWeight: 700 }}
               >
                 Submit Booking Ticket
-              </Button>
-            </Card>
+              </CButton>
+            </CCard>
 
           </div>
         )}
