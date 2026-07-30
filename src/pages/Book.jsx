@@ -1,17 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { Steps, Form, Input, Button, InputNumber, Modal, Card, message } from 'antd';
+import { Steps, Form, Input, Button, InputNumber, Card, message } from 'antd';
 import { 
   UserOutlined, 
   PhoneOutlined, 
   MailOutlined, 
   EnvironmentOutlined, 
-  CreditCardOutlined, 
-  CheckCircleOutlined, 
   CompassOutlined,
   ShoppingOutlined,
-  DollarOutlined
+  DollarOutlined,
+  UploadOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import {
   setStep,
@@ -50,12 +50,13 @@ export default function Book() {
   const promoCode = useSelector((state) => state.booking.promoCode);
   const discount = useSelector((state) => state.booking.discount);
   const totalAmount = useSelector((state) => state.booking.totalAmount);
-  const isPaid = useSelector((state) => state.booking.isPaid);
 
   // Local state for UI
   const [mapSearchText, setMapSearchText] = useState('');
-  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [screenshotFile, setScreenshotFile] = useState(null);
   const [promoInput, setPromoInput] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const [form2] = Form.useForm();
   const [form3] = Form.useForm();
 
@@ -74,7 +75,6 @@ export default function Book() {
 
   // Recalculate billing summary
   const baseCost = PLAN_PRICES[selectedPlanId]?.price || 699;
-  const isLongTerm = selectedPlanId.includes('days') || selectedPlanId.includes('month');
   const durationDays = selectedPlanId === 'oneday' ? 1 :
                        selectedPlanId === 'twodays' ? 2 :
                        selectedPlanId === 'threedays' ? 3 :
@@ -215,27 +215,72 @@ export default function Book() {
     dispatch(setStep(3));
   };
 
-  const handleProcessPayment = () => {
-    setIsPaymentModalOpen(true);
+  // Multipart Form Submit to Express Backend
+  const handleBookingSubmit = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      message.warning('Please log in or register to complete your rental booking.');
+      navigate('/login');
+      return;
+    }
+
+    if (!screenshotFile) {
+      message.error('Please upload a screenshot of your successful UPI payment.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('planId', selectedPlanId);
+      formData.append('extraControllers', extraControllers);
+      formData.append('name', customerInfo.name);
+      formData.append('phone', customerInfo.phone);
+      formData.append('email', customerInfo.email);
+      formData.append('address', customerInfo.address);
+      formData.append('coordinates', JSON.stringify(customerInfo.coordinates || [12.9716, 77.5946]));
+      formData.append('totalAmount', totalAmount);
+      formData.append('promoCode', promoCode || '');
+      formData.append('screenshot', screenshotFile);
+
+      const response = await fetch('http://localhost:5000/api/bookings/create', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+      
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        message.success('Booking requested! Awaiting payment verification.');
+        dispatch(markAsPaid(true));
+        navigate('/success');
+      } else {
+        message.error(data.message || 'Failed to submit booking request.');
+      }
+    } catch (err) {
+      message.error('Connection error. Is backend server running on port 5000?');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleConfirmPayment = () => {
-    setIsPaymentModalOpen(false);
-    dispatch(markAsPaid(true));
-    message.success('Payment authorized successfully!');
-    navigate('/success');
-  };
+  // Generate real dynamic QR code based on amount
+  const upiLink = `upi://pay?pa=gamingstation50@upi&pn=GamingStation50&am=${totalAmount}&cu=INR&tn=GS50%20Console%20Rental`;
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
 
   return (
     <section className="booking-wizard-wrapper" style={{ paddingBottom: '6rem' }}>
       <div className="container" style={{ maxWidth: '900px' }}>
         
-        {/* Ant Design Steps Indicator */}
+        {/* Steps Indicator */}
         <div style={{ padding: '2.5rem 0' }}>
           <Steps
             current={currentStep}
             onChange={(step) => {
-              // Only allow switching to steps already unlocked or visited
               if (step < currentStep) dispatch(setStep(step));
             }}
             items={[
@@ -416,126 +461,137 @@ export default function Book() {
           </Card>
         )}
 
-        {/* STEP 4: INVOICE SUMMARY & PAY */}
+        {/* STEP 4: INVOICE SUMMARY & PAY via QR */}
         {currentStep === 3 && (
-          <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
-            <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
-              Order Invoice Summary
-            </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2rem' }}>
+            
+            {/* Invoice Left Panel */}
+            <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem' }}>
+              <h3 style={{ fontWeight: 800, fontSize: '1.4rem', color: 'var(--text-dark)', marginBottom: '1.5rem' }}>
+                Order Invoice Summary
+              </h3>
 
-            {/* Billing breakdown */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderBottom: '1px solid rgba(24,24,27,0.08)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>{PLAN_PRICES[selectedPlanId]?.name} Base Rent</span>
-                <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>₹{baseCost}</span>
-              </div>
-              
-              {extraControllers > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderBottom: '1px solid rgba(24,24,27,0.08)', paddingBottom: '1.5rem', marginBottom: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--text-muted)' }}>Extra Controller ({extraControllers} qty x {durationDays} days)</span>
-                  <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>+₹{controllerCharges}</span>
+                  <span style={{ color: 'var(--text-muted)' }}>{PLAN_PRICES[selectedPlanId]?.name} Base Rent</span>
+                  <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>₹{baseCost}</span>
                 </div>
-              )}
+                
+                {extraControllers > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Extra Controller ({extraControllers} qty x {durationDays} days)</span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-dark)' }}>+₹{controllerCharges}</span>
+                  </div>
+                )}
 
-              {discount > 0 && (
+                {discount > 0 && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <span style={{ color: 'var(--success)', fontWeight: 600 }}>Discount ({promoCode})</span>
+                    <span style={{ fontWeight: 700, color: 'var(--success)' }}>-₹{discount}</span>
+                  </div>
+                )}
+
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: 'var(--success)', fontWeight: 600 }}>Discount ({promoCode})</span>
-                  <span style={{ fontWeight: 700, color: 'var(--success)' }}>-₹{discount}</span>
+                  <span style={{ color: 'var(--text-muted)' }}>KYC Verification Fee</span>
+                  <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
                 </div>
-              )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>KYC Verification Fee</span>
-                <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>Doorstep Express Setup & Pickup</span>
+                  <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
+                </div>
+              </div>
+
+              {/* Promo Code Input */}
+              <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem' }}>
+                <Input 
+                  placeholder="Enter Coupon Code" 
+                  value={promoInput}
+                  onChange={(e) => setPromoInput(e.target.value)}
+                  size="large"
+                />
+                <Button type="primary" onClick={handleApplyPromo} size="large" style={{ borderRadius: '8px' }}>
+                  Apply
+                </Button>
+              </div>
+
+              {/* Grand Total */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(var(--primary-rgb),0.05)', padding: '1.2rem', borderRadius: '12px', marginBottom: '2rem' }}>
+                <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-dark)' }}>Grand Total</span>
+                <span style={{ fontWeight: 900, fontSize: '1.65rem', color: 'var(--primary)' }}>₹{grandTotal}</span>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-muted)' }}>Doorstep Express Setup & Pickup</span>
-                <span style={{ fontWeight: 600, color: 'var(--success)' }}>FREE</span>
+                <Button size="large" onClick={() => dispatch(setStep(2))} style={{ borderRadius: '8px' }}>
+                  Back
+                </Button>
               </div>
-            </div>
+            </Card>
 
-            {/* Promo Code Input */}
-            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '2rem' }}>
-              <Input 
-                placeholder="Enter Coupon Code (e.g. GAME50)" 
-                value={promoInput}
-                onChange={(e) => setPromoInput(e.target.value)}
-                size="large"
-              />
-              <Button type="primary" onClick={handleApplyPromo} size="large" style={{ borderRadius: '8px' }}>
-                Apply
-              </Button>
-            </div>
+            {/* QR Scanner & Screenshot Upload Right Panel */}
+            <Card className="glass-card" style={{ border: '1px solid var(--glass-border)', padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ textAlign: 'center', width: '100%' }}>
+                <h4 style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-dark)', marginBottom: '0.4rem' }}>
+                  Pay via UPI QR Code
+                </h4>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: '1.5rem' }}>
+                  Scan code using GPay, PhonePe, Paytm, or BHIM to complete transaction.
+                </p>
 
-            {/* Grand Total */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(var(--primary-rgb),0.05)', padding: '1.5rem', borderRadius: '12px', marginBottom: '2rem' }}>
-              <span style={{ fontWeight: 800, fontSize: '1.15rem', color: 'var(--text-dark)' }}>Grand Total</span>
-              <span style={{ fontWeight: 900, fontSize: '1.8rem', color: 'var(--primary)' }}>₹{grandTotal}</span>
-            </div>
+                {/* UPI QR Canvas image */}
+                <div style={{ background: '#ffffff', padding: '1rem', borderRadius: '12px', display: 'inline-block', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', border: '1px solid var(--glass-border)', marginBottom: '1.5rem' }}>
+                  <img 
+                    src={qrCodeUrl} 
+                    alt="UPI Payment QR Code" 
+                    style={{ width: '180px', height: '180px', display: 'block' }}
+                  />
+                </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Button size="large" onClick={() => dispatch(setStep(2))} style={{ borderRadius: '8px' }}>
-                Back
+                <div style={{ background: 'rgba(9,47,148,0.04)', border: '1px solid rgba(9,47,148,0.08)', borderRadius: '8px', padding: '0.8rem', fontSize: '0.85rem', color: 'var(--text-dark)', fontWeight: 600, marginBottom: '1.8rem' }}>
+                  UPI Ref: gamingstation50@upi
+                </div>
+
+                {/* Screenshot Uploader Input */}
+                <div style={{ textAlign: 'left', width: '100%' }}>
+                  <label style={{ display: 'block', fontSize: '0.88rem', fontWeight: 700, color: 'var(--text-dark)', marginBottom: '0.5rem' }}>
+                    Attach Payment Screenshot:
+                  </label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setScreenshotFile(e.target.files ? e.target.files[0] : null)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '8px 12px',
+                      fontSize: '0.85rem',
+                      border: '1px solid var(--glass-border)',
+                      borderRadius: '6px',
+                      background: 'rgba(255,255,255,0.05)',
+                      color: 'var(--text-dark)',
+                      marginBottom: '1.5rem',
+                      cursor: 'pointer'
+                    }}
+                  />
+                </div>
+              </div>
+
+              <Button 
+                type="primary" 
+                size="large" 
+                icon={<CheckCircleOutlined />}
+                onClick={handleBookingSubmit}
+                loading={isSubmitting}
+                style={{ width: '100%', borderRadius: '12px', height: '50px', background: '#22c55e', borderColor: '#22c55e', fontWeight: 700 }}
+              >
+                Submit Booking Ticket
               </Button>
-              <Button type="primary" size="large" onClick={handleProcessPayment} style={{ borderRadius: '8px', padding: '0 2.5rem' }}>
-                Pay Securely
-              </Button>
-            </div>
-          </Card>
+            </Card>
+
+          </div>
         )}
 
       </div>
-
-      {/* SECURE PAYMENT SIMULATION MODAL */}
-      <Modal
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', paddingBottom: '0.8rem', borderBottom: '1px solid rgba(24,24,27,0.06)' }}>
-            <span style={{ background: '#092f94', color: '#ffffff', padding: '0.4rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 800 }}>RP</span>
-            <span style={{ fontWeight: 800, fontSize: '1.15rem' }}>Razorpay Secure Checkout</span>
-          </div>
-        }
-        open={isPaymentModalOpen}
-        onCancel={() => setIsPaymentModalOpen(false)}
-        footer={null}
-        centered
-        width={400}
-      >
-        <div style={{ padding: '1.5rem 0', textAlign: 'center' }}>
-          <ShoppingOutlined style={{ fontSize: '3rem', color: 'var(--primary)', marginBottom: '1rem' }} />
-          <h4 style={{ fontWeight: 800, fontSize: '1.1rem', margin: '0 0 0.5rem 0' }}>GamingStation50 Rental Service</h4>
-          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Order Transaction: #GS50-TXN-98782</p>
-
-          <div style={{ background: '#f4f6fc', padding: '1rem', borderRadius: '8px', margin: '1.5rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Amount to Pay</span>
-            <span style={{ fontWeight: 800, color: 'var(--text-dark)', fontSize: '1.2rem' }}>₹{totalAmount}</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-            <Button 
-              type="primary" 
-              size="large" 
-              icon={<CheckCircleOutlined />} 
-              onClick={handleConfirmPayment}
-              style={{ width: '100%', borderRadius: '8px', background: '#22c55e', borderColor: '#22c55e' }}
-            >
-              Confirm Sim Payment
-            </Button>
-            <Button 
-              size="large" 
-              onClick={() => setIsPaymentModalOpen(false)}
-              style={{ width: '100%', borderRadius: '8px' }}
-            >
-              Cancel Payment
-            </Button>
-          </div>
-
-          <p style={{ marginTop: '1.5rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-            This is a secure sandbox gateway simulation. Do not share PINs/passwords.
-          </p>
-        </div>
-      </Modal>
-
     </section>
   );
 }
