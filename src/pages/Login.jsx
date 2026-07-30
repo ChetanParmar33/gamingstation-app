@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Tabs, Form, Input, Button, Select, message } from 'antd';
@@ -7,10 +7,22 @@ import { loginUser } from '../store/userSlice';
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login');
+  const [phoneInput, setPhoneInput] = useState('');
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loginForm] = Form.useForm();
+  const [signupForm] = Form.useForm();
+
+  // If tab switches to signup, and we have a verified phone, pre-fill it!
+  useEffect(() => {
+    if (activeTab === 'signup' && phoneInput) {
+      signupForm.setFieldsValue({ phone: phoneInput });
+    }
+  }, [activeTab, phoneInput, signupForm]);
 
   const handleOtpChange = (index, value) => {
     const cleaned = value.replace(/[^0-9]/g, '');
@@ -31,35 +43,91 @@ export default function Login() {
     }
   };
 
-  const onLoginFinish = (values) => {
+  // Step 1: Request OTP from Express backend
+  const handleRequestOtp = async (values) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: values.phone })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setIsOtpSent(true);
+        setPhoneInput(values.phone);
+        message.success('Verification code generated! Please check your backend terminal log.');
+      } else {
+        message.error(data.message || 'Failed to send OTP code.');
+      }
+    } catch (err) {
+      message.error('Backend connection error. Make sure your server is running on port 5000.');
+    }
+  };
+
+  // Step 2: Verify OTP code with Express backend
+  const handleVerifyOtp = async () => {
     const enteredOtp = otp.join('');
     if (enteredOtp.length < 4) {
       message.error('Please enter the full 4-digit verification code.');
       return;
     }
-    
-    // Log user into Redux store
-    dispatch(loginUser({ phone: values.phone, name: 'Gamer' }));
-    message.success('Logged in successfully!');
-    navigate('/');
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneInput, otp: enteredOtp })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        if (data.isRegistered) {
+          // User already exists - log in directly
+          localStorage.setItem('token', data.token);
+          dispatch(loginUser(data.user));
+          message.success('Logged in successfully!');
+          navigate('/');
+        } else {
+          // User verified but not registered yet
+          message.info('Verification successful! Please complete your registration profile.');
+          setActiveTab('signup');
+        }
+      } else {
+        message.error(data.message || 'Incorrect or expired verification code.');
+      }
+    } catch (err) {
+      message.error('Error connecting to authentication service.');
+    }
   };
 
-  const onSignupFinish = (values) => {
-    dispatch(loginUser({ 
-      phone: values.phone, 
-      name: values.name, 
-      email: values.email, 
-      city: values.city 
-    }));
-    message.success('Account registered successfully! Welcome aboard!');
-    navigate('/');
+  // Signup Submit to Express backend
+  const onSignupFinish = async (values) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(values)
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        localStorage.setItem('token', data.token);
+        dispatch(loginUser(data.user));
+        message.success('Account registered successfully! Welcome to GamingStation50!');
+        navigate('/');
+      } else {
+        message.error(data.message || 'Failed to register account profile.');
+      }
+    } catch (err) {
+      message.error('Connection error. Server is unreachable.');
+    }
   };
 
   return (
     <section className="auth-wrapper-section">
       <div className="container" style={{ maxWidth: '500px' }}>
         
-        {/* Auth Form Card */}
         <div className="auth-card glass-card">
           
           <Tabs
@@ -77,8 +145,9 @@ export default function Login() {
                     <p className="auth-subtitle">Verify your mobile via instant OTP to manage console rentals and games swaps.</p>
                     
                     <Form
+                      form={loginForm}
                       layout="vertical"
-                      onFinish={onLoginFinish}
+                      onFinish={handleRequestOtp}
                       requiredMark={false}
                     >
                       <Form.Item
@@ -93,48 +162,71 @@ export default function Login() {
                           addonBefore="+91" 
                           placeholder="Enter 10-digit number" 
                           size="large" 
+                          disabled={isOtpSent}
                         />
                       </Form.Item>
 
-                      <Form.Item label="Enter 4-Digit Security Code (OTP)">
-                        <div className="otp-row-container" style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center' }}>
-                          {otp.map((digit, idx) => (
-                            <input 
-                              key={idx}
-                              type="text" 
-                              maxLength="1" 
-                              className="otp-box" 
-                              ref={otpRefs[idx]}
-                              value={digit}
-                              onChange={(e) => handleOtpChange(idx, e.target.value)}
-                              onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                              style={{
-                                width: '50px',
-                                height: '50px',
-                                textAlign: 'center',
-                                fontSize: '1.25rem',
-                                fontWeight: '700',
-                                border: '1px solid var(--glass-border)',
-                                borderRadius: '8px',
-                                background: 'rgba(255,255,255,0.05)',
-                                color: 'var(--text-dark)'
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.8rem', textAlign: 'right' }}>
-                          Didn't receive OTP? <a href="#" className="accent-link" onClick={(e) => { e.preventDefault(); message.success('Security code resent successfully!'); }}>Resend Code</a>
-                        </span>
-                      </Form.Item>
+                      {isOtpSent && (
+                        <Form.Item label="Enter 4-Digit Security Code (OTP)" style={{ animation: 'fadeIn 0.3s ease' }}>
+                          <div className="otp-row-container" style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center' }}>
+                            {otp.map((digit, idx) => (
+                              <input 
+                                key={idx}
+                                type="text" 
+                                maxLength="1" 
+                                className="otp-box" 
+                                ref={otpRefs[idx]}
+                                value={digit}
+                                onChange={(e) => handleOtpChange(idx, e.target.value)}
+                                onKeyDown={(e) => handleOtpKeyDown(idx, e)}
+                                style={{
+                                  width: '50px',
+                                  height: '50px',
+                                  textAlign: 'center',
+                                  fontSize: '1.25rem',
+                                  fontWeight: '700',
+                                  border: '1px solid var(--glass-border)',
+                                  borderRadius: '8px',
+                                  background: 'rgba(255,255,255,0.05)',
+                                  color: 'var(--text-dark)'
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.8rem', textAlign: 'right' }}>
+                            Didn't receive OTP? <a href="#" className="accent-link" onClick={(e) => { e.preventDefault(); handleRequestOtp({ phone: phoneInput }); }}>Resend Code</a>
+                          </span>
+                        </Form.Item>
+                      )}
 
-                      <Button 
-                        type="primary" 
-                        htmlType="submit" 
-                        size="large" 
-                        style={{ width: '100%', marginTop: '1rem', borderRadius: '12px' }}
-                      >
-                        Request OTP / Login
-                      </Button>
+                      {!isOtpSent ? (
+                        <Button 
+                          type="primary" 
+                          htmlType="submit" 
+                          size="large" 
+                          style={{ width: '100%', marginTop: '1rem', borderRadius: '12px' }}
+                        >
+                          Request OTP code
+                        </Button>
+                      ) : (
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                          <Button 
+                            onClick={() => { setIsOtpSent(false); setOtp(['','','','']); }} 
+                            size="large"
+                            style={{ flex: 1, borderRadius: '12px' }}
+                          >
+                            Change Number
+                          </Button>
+                          <Button 
+                            type="primary" 
+                            onClick={handleVerifyOtp} 
+                            size="large" 
+                            style={{ flex: 2, borderRadius: '12px' }}
+                          >
+                            Verify & Login
+                          </Button>
+                        </div>
+                      )}
                     </Form>
                   </div>
                 )
@@ -148,6 +240,7 @@ export default function Login() {
                     <p className="auth-subtitle">Create an account in 1 minute to rent consoles with zero security deposit.</p>
                     
                     <Form
+                      form={signupForm}
                       layout="vertical"
                       onFinish={onSignupFinish}
                       requiredMark={false}
