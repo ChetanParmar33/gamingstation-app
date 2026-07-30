@@ -1,107 +1,47 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { Tabs, Form, Input, Button, Select, message } from 'antd';
-import { GoogleOutlined, MessageOutlined, BulbOutlined } from '@ant-design/icons';
+import { Tabs, Form, Input, Button, Select, Modal, message } from 'antd';
+import { GoogleOutlined, MessageOutlined, BulbOutlined, LockOutlined, PhoneOutlined, UserOutlined, MailOutlined } from '@ant-design/icons';
 import { loginUser } from '../store/userSlice';
 
 export default function Login() {
   const [activeTab, setActiveTab] = useState('login');
-  const [phoneInput, setPhoneInput] = useState('');
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '']);
-  const otpRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
-  
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
   const [loginForm] = Form.useForm();
   const [signupForm] = Form.useForm();
+  const [forgotForm] = Form.useForm();
 
-  // If tab switches to signup, and we have a verified phone, pre-fill it!
-  useEffect(() => {
-    if (activeTab === 'signup' && phoneInput) {
-      signupForm.setFieldsValue({ phone: phoneInput });
-    }
-  }, [activeTab, phoneInput, signupForm]);
-
-  const handleOtpChange = (index, value) => {
-    const cleaned = value.replace(/[^0-9]/g, '');
-    if (cleaned.length > 1) return;
-
-    const newOtp = [...otp];
-    newOtp[index] = cleaned;
-    setOtp(newOtp);
-
-    if (cleaned && index < 3) {
-      otpRefs[index + 1].current.focus();
-    }
-  };
-
-  const handleOtpKeyDown = (index, e) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
-      otpRefs[index - 1].current.focus();
-    }
-  };
-
-  // Step 1: Request OTP from Express backend
-  const handleRequestOtp = async (values) => {
+  // Handle Login API call
+  const onLoginFinish = async (values) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/send-otp', {
+      const response = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: values.phone })
+        body: JSON.stringify({
+          phone: values.phone,
+          password: values.password
+        })
       });
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setIsOtpSent(true);
-        setPhoneInput(values.phone);
-        message.success('Verification code generated! Please check your backend terminal log.');
+        localStorage.setItem('token', data.token);
+        dispatch(loginUser(data.user));
+        message.success('Logged in successfully!');
+        navigate('/');
       } else {
-        message.error(data.message || 'Failed to send OTP code.');
+        message.error(data.message || 'Incorrect mobile number or password.');
       }
     } catch (err) {
       message.error('Backend connection error. Make sure your server is running on port 5000.');
     }
   };
 
-  // Step 2: Verify OTP code with Express backend
-  const handleVerifyOtp = async () => {
-    const enteredOtp = otp.join('');
-    if (enteredOtp.length < 4) {
-      message.error('Please enter the full 4-digit verification code.');
-      return;
-    }
-
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneInput, otp: enteredOtp })
-      });
-      const data = await response.json();
-
-      if (response.ok && data.success) {
-        if (data.isRegistered) {
-          // User already exists - log in directly
-          localStorage.setItem('token', data.token);
-          dispatch(loginUser(data.user));
-          message.success('Logged in successfully!');
-          navigate('/');
-        } else {
-          // User verified but not registered yet
-          message.info('Verification successful! Please complete your registration profile.');
-          setActiveTab('signup');
-        }
-      } else {
-        message.error(data.message || 'Incorrect or expired verification code.');
-      }
-    } catch (err) {
-      message.error('Error connecting to authentication service.');
-    }
-  };
-
-  // Signup Submit to Express backend
+  // Handle Signup API call
   const onSignupFinish = async (values) => {
     try {
       const response = await fetch('http://localhost:5000/api/auth/register', {
@@ -117,7 +57,39 @@ export default function Login() {
         message.success('Account registered successfully! Welcome to GamingStation50!');
         navigate('/');
       } else {
-        message.error(data.message || 'Failed to register account profile.');
+        message.error(data.message || 'Registration failed.');
+      }
+    } catch (err) {
+      message.error('Connection error. Server is unreachable.');
+    }
+  };
+
+  // Handle Password Reset API call
+  const onResetPasswordFinish = async (values) => {
+    if (values.newPassword !== values.confirmPassword) {
+      message.error('Passwords do not match. Please verify.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: values.phone,
+          newPassword: values.newPassword
+        })
+      });
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        message.success('Password updated successfully! You can now log in.');
+        setIsForgotModalOpen(false);
+        forgotForm.resetFields();
+        // pre-fill phone in login form
+        loginForm.setFieldsValue({ phone: values.phone });
+      } else {
+        message.error(data.message || 'Failed to update password.');
       }
     } catch (err) {
       message.error('Connection error. Server is unreachable.');
@@ -141,13 +113,13 @@ export default function Login() {
                 label: 'Login',
                 children: (
                   <div className="auth-body" style={{ paddingTop: '1.5rem' }}>
-                    <h2 className="auth-title">Verify Gamer Account</h2>
-                    <p className="auth-subtitle">Verify your mobile via instant OTP to manage console rentals and games swaps.</p>
+                    <h2 className="auth-title">Welcome Back</h2>
+                    <p className="auth-subtitle">Enter your mobile number and password to log in and manage your rental passes.</p>
                     
                     <Form
                       form={loginForm}
                       layout="vertical"
-                      onFinish={handleRequestOtp}
+                      onFinish={onLoginFinish}
                       requiredMark={false}
                     >
                       <Form.Item
@@ -159,74 +131,44 @@ export default function Login() {
                         ]}
                       >
                         <Input 
+                          prefix={<PhoneOutlined />}
                           addonBefore="+91" 
                           placeholder="Enter 10-digit number" 
                           size="large" 
-                          disabled={isOtpSent}
                         />
                       </Form.Item>
 
-                      {isOtpSent && (
-                        <Form.Item label="Enter 4-Digit Security Code (OTP)" style={{ animation: 'fadeIn 0.3s ease' }}>
-                          <div className="otp-row-container" style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center' }}>
-                            {otp.map((digit, idx) => (
-                              <input 
-                                key={idx}
-                                type="text" 
-                                maxLength="1" 
-                                className="otp-box" 
-                                ref={otpRefs[idx]}
-                                value={digit}
-                                onChange={(e) => handleOtpChange(idx, e.target.value)}
-                                onKeyDown={(e) => handleOtpKeyDown(idx, e)}
-                                style={{
-                                  width: '50px',
-                                  height: '50px',
-                                  textAlign: 'center',
-                                  fontSize: '1.25rem',
-                                  fontWeight: '700',
-                                  border: '1px solid var(--glass-border)',
-                                  borderRadius: '8px',
-                                  background: 'rgba(255,255,255,0.05)',
-                                  color: 'var(--text-dark)'
-                                }}
-                              />
-                            ))}
-                          </div>
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'block', marginTop: '0.8rem', textAlign: 'right' }}>
-                            Didn't receive OTP? <a href="#" className="accent-link" onClick={(e) => { e.preventDefault(); handleRequestOtp({ phone: phoneInput }); }}>Resend Code</a>
-                          </span>
-                        </Form.Item>
-                      )}
-
-                      {!isOtpSent ? (
-                        <Button 
-                          type="primary" 
-                          htmlType="submit" 
+                      <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[{ required: true, message: 'Please enter your password' }]}
+                      >
+                        <Input.Password 
+                          prefix={<LockOutlined />}
+                          placeholder="Enter Password" 
                           size="large" 
-                          style={{ width: '100%', marginTop: '1rem', borderRadius: '12px' }}
+                        />
+                      </Form.Item>
+
+                      <div style={{ textAlign: 'right', marginBottom: '1.5rem' }}>
+                        <a 
+                          href="#" 
+                          className="accent-link" 
+                          style={{ fontSize: '0.85rem', fontWeight: 600 }}
+                          onClick={(e) => { e.preventDefault(); setIsForgotModalOpen(true); }}
                         >
-                          Request OTP code
-                        </Button>
-                      ) : (
-                        <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-                          <Button 
-                            onClick={() => { setIsOtpSent(false); setOtp(['','','','']); }} 
-                            size="large"
-                            style={{ flex: 1, borderRadius: '12px' }}
-                          >
-                            Change Number
-                          </Button>
-                          <Button 
-                            type="primary" 
-                            onClick={handleVerifyOtp} 
-                            size="large" 
-                            style={{ flex: 2, borderRadius: '12px' }}
-                          >
-                            Verify & Login
-                          </Button>
-                        </div>
-                      )}
+                          Forgot Password?
+                        </a>
+                      </div>
+
+                      <Button 
+                        type="primary" 
+                        htmlType="submit" 
+                        size="large" 
+                        style={{ width: '100%', borderRadius: '12px' }}
+                      >
+                        Log In
+                      </Button>
                     </Form>
                   </div>
                 )
@@ -236,8 +178,8 @@ export default function Login() {
                 label: 'Sign Up',
                 children: (
                   <div className="auth-body" style={{ paddingTop: '1.5rem' }}>
-                    <h2 className="auth-title">Register Gamer Account</h2>
-                    <p className="auth-subtitle">Create an account in 1 minute to rent consoles with zero security deposit.</p>
+                    <h2 className="auth-title">Create Gamer Profile</h2>
+                    <p className="auth-subtitle">Register to rent PS5 consoles instantly with zero security deposit.</p>
                     
                     <Form
                       form={signupForm}
@@ -250,7 +192,7 @@ export default function Login() {
                         name="name"
                         rules={[{ required: true, message: 'Please enter your full name' }]}
                       >
-                        <Input placeholder="e.g. John Doe" size="large" />
+                        <Input prefix={<UserOutlined />} placeholder="e.g. John Doe" size="large" />
                       </Form.Item>
 
                       <Form.Item
@@ -261,7 +203,7 @@ export default function Login() {
                           { type: 'email', message: 'Please enter a valid email' }
                         ]}
                       >
-                        <Input placeholder="name@company.com" size="large" />
+                        <Input prefix={<MailOutlined />} placeholder="name@company.com" size="large" />
                       </Form.Item>
 
                       <Form.Item
@@ -272,7 +214,18 @@ export default function Login() {
                           { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
                         ]}
                       >
-                        <Input addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
+                        <Input prefix={<PhoneOutlined />} addonBefore="+91" placeholder="Enter 10-digit number" size="large" />
+                      </Form.Item>
+
+                      <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[
+                          { required: true, message: 'Please set a password' },
+                          { min: 6, message: 'Password must be at least 6 characters' }
+                        ]}
+                      >
+                        <Input.Password prefix={<LockOutlined />} placeholder="Min 6 characters" size="large" />
                       </Form.Item>
 
                       <Form.Item
@@ -320,6 +273,95 @@ export default function Login() {
         </div>
 
       </div>
+
+      {/* FORGOT PASSWORD / PASSWORD RESET MODAL */}
+      <Modal
+        title={
+          <div style={{ fontWeight: 800, fontSize: '1.2rem', paddingBottom: '0.5rem', borderBottom: '1px solid rgba(24,24,27,0.06)' }}>
+            Reset Password
+          </div>
+        }
+        open={isForgotModalOpen}
+        onCancel={() => setIsForgotModalOpen(false)}
+        footer={null}
+        centered
+        width={420}
+      >
+        <div style={{ padding: '1rem 0' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginBottom: '1.5rem' }}>
+            Enter your registered mobile number and set your new password directly below.
+          </p>
+
+          <Form
+            form={forgotForm}
+            layout="vertical"
+            onFinish={onResetPasswordFinish}
+            requiredMark={false}
+          >
+            <Form.Item
+              label="Registered Mobile Number"
+              name="phone"
+              rules={[
+                { required: true, message: 'Please enter your mobile number' },
+                { pattern: /^[0-9]{10}$/, message: 'Please enter a valid 10-digit number' }
+              ]}
+            >
+              <Input 
+                prefix={<PhoneOutlined />}
+                addonBefore="+91" 
+                placeholder="Enter 10-digit number" 
+                size="large" 
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="New Password"
+              name="newPassword"
+              rules={[
+                { required: true, message: 'Please set your new password' },
+                { min: 6, message: 'Password must be at least 6 characters' }
+              ]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined />}
+                placeholder="Min 6 characters" 
+                size="large" 
+              />
+            </Form.Item>
+
+            <Form.Item
+              label="Confirm New Password"
+              name="confirmPassword"
+              rules={[{ required: true, message: 'Please confirm your new password' }]}
+            >
+              <Input.Password 
+                prefix={<LockOutlined />}
+                placeholder="Confirm password" 
+                size="large" 
+              />
+            </Form.Item>
+
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+              <Button 
+                onClick={() => setIsForgotModalOpen(false)} 
+                size="large"
+                style={{ flex: 1, borderRadius: '8px' }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                size="large" 
+                style={{ flex: 1.5, borderRadius: '8px' }}
+              >
+                Reset Password
+              </Button>
+            </div>
+          </Form>
+        </div>
+      </Modal>
+
     </section>
   );
 }
