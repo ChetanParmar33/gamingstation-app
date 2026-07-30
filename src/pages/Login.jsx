@@ -264,7 +264,7 @@ export default function Login() {
               <span>OR CONNECT WITH</span>
             </div>
  
-            <div className="social-login-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
+            <div className="social-login-grid">
               <CButton icon={<GoogleOutlined style={{ color: '#DB4437' }} />} style={{ borderRadius: '8px' }}>Google</CButton>
               <CButton icon={<MessageOutlined style={{ color: '#7289DA' }} />} style={{ borderRadius: '8px' }}>Discord</CButton>
               <CButton icon={<BulbOutlined style={{ color: '#003087' }} />} style={{ borderRadius: '8px' }}>PSN</CButton>

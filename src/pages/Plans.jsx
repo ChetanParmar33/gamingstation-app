@@ -145,7 +145,7 @@ export default function Plans() {
 
       {/* PLAN CARDS GRID */}
       <section className="container" style={{ paddingBottom: '4rem' }}>
-        <div className="plans-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+        <div className="plans-grid">
           {PASS_PLANS.filter(p => {
             if (billingCycle === 'Short-Term') return p.id === 'oneday' || p.id === 'threedays';
             return p.id === 'fifteendays' || p.id === 'onemonth';
@@ -201,13 +201,15 @@ export default function Plans() {
           <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Check exact breakdowns of swapping rules, hardware accessories, and terms.</p>
         </div>
 
-        <CTable 
-          columns={columns} 
-          dataSource={data} 
-          pagination={false} 
-          bordered 
-          style={{ borderRadius: '12px', overflow: 'hidden' }}
-        />
+        <div className="plans-table-container">
+          <CTable 
+            columns={columns} 
+            dataSource={data} 
+            pagination={false} 
+            bordered 
+            style={{ borderRadius: '12px', overflow: 'hidden' }}
+          />
+        </div>
       </section>
     </>
   );

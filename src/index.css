@@ -3305,4 +3305,113 @@ ul {
     border-color: rgba(164, 188, 252, 0.1);
 }
 
+/* ==========================================================================
+   20. Responsive Structural Additions & Utility Classes
+   ========================================================================== */
+
+/* Responsive About / Contact Layout Grid */
+.tracking-layout-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 992px) {
+    .tracking-layout-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* Form Group Grid Responsiveness */
+@media (max-width: 768px) {
+    .form-group-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Social Login Grid Overrides & Responsiveness */
+.social-login-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 576px) {
+    .social-login-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+}
+
+/* Booking Invoice & Payment Panel Grid */
+.booking-payment-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+@media (max-width: 992px) {
+    .booking-payment-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* Addon items (controller configuration) */
+.booking-addon-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(var(--primary-rgb), 0.04);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(var(--primary-rgb), 0.1);
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 576px) {
+    .booking-addon-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+    .booking-addon-item > div {
+        margin-bottom: 0.5rem;
+    }
+    .booking-addon-item > .ant-input-number {
+        width: 100%;
+    }
+}
+
+/* Search bar component groups */
+.search-group {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 480px) {
+    .search-group {
+        flex-direction: column;
+    }
+    .search-group button {
+        width: 100%;
+    }
+}
+
+/* Table overflow container wrapper */
+.plans-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 2rem;
+    border-radius: var(--radius-lg);
+}
+
+
 

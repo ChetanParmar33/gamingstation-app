@@ -325,7 +325,7 @@ export default function Book() {
               </select>
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(var(--primary-rgb),0.04)', padding: '1.5rem', borderRadius: '12px', border: '1px solid rgba(var(--primary-rgb),0.1)', marginBottom: '2rem' }}>
+            <div className="booking-addon-item">
               <div>
                 <h5 style={{ fontWeight: 700, margin: 0, fontSize: '0.98rem', color: 'var(--text-dark)' }}>Additional DualSense Controller</h5>
                 <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
@@ -412,7 +412,7 @@ export default function Book() {
               Confirm Delivery Location
             </h3>
             
-            <div style={{ display: 'flex', gap: '0.8rem', marginBottom: '1.5rem' }}>
+            <div className="search-group">
               <CInput 
                 prefix={<CompassOutlined />} 
                 placeholder="Search neighborhood or society, e.g. Indiranagar, Bangalore" 
@@ -464,7 +464,7 @@ export default function Book() {
 
         {/* STEP 4: INVOICE SUMMARY & PAY via QR */}
         {currentStep === 3 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '2rem' }}>
+          <div className="booking-payment-grid">
             
             {/* Invoice Left Panel */}
             <CCard style={{ padding: '2rem' }}>
