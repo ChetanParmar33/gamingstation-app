@@ -26,14 +26,13 @@ import {
 import { CForm, CInput, CButton, CCard, CSelect, CSteps, CInputNumber } from '../components/custom';
 
 const PLAN_PRICES = {
-  'oneday': { name: '1 Day Plan', price: 699 },
-  'twodays': { name: '2 Days Plan', price: 1399 },
-  'threedays': { name: '3 Days Plan', price: 1999 },
-  'fourdays': { name: '4 Days Plan', price: 2699 },
-  'fifteendays': { name: '15 Days Pass', price: 4999 },
-  'onemonth': { name: '1 Month Subscription', price: 7999 },
-  'twomonths': { name: '2 Months Ultimate', price: 13999 },
-  'threemonths': { name: '3 Months VIP Gamer', price: 19999 }
+  'oneday': { name: '1 Day Plan', price: 999 },
+  'twodays': { name: '2 Days Plan', price: 1899 },
+  'threedays': { name: '3 Days Plan', price: 2599 },
+  'fourdays': { name: '4 Days Plan', price: 2999 },
+  'fivedays': { name: '5 Days Plan', price: 3699 },
+  'sixdays': { name: '6 Days Plan', price: 3999 },
+  'sevendays': { name: '7 Days Plan', price: 4599 }
 };
 
 const EXTRA_CONTROLLER_COST_PER_DAY = 150;
@@ -75,14 +74,14 @@ export default function Book() {
   }, [searchParams]);
 
   // Recalculate billing summary
-  const baseCost = PLAN_PRICES[selectedPlanId]?.price || 699;
+  const baseCost = PLAN_PRICES[selectedPlanId]?.price || 999;
   const durationDays = selectedPlanId === 'oneday' ? 1 :
                        selectedPlanId === 'twodays' ? 2 :
                        selectedPlanId === 'threedays' ? 3 :
                        selectedPlanId === 'fourdays' ? 4 :
-                       selectedPlanId === 'fifteendays' ? 15 :
-                       selectedPlanId === 'onemonth' ? 30 :
-                       selectedPlanId === 'twomonths' ? 60 : 90;
+                       selectedPlanId === 'fivedays' ? 5 :
+                       selectedPlanId === 'sixdays' ? 6 :
+                       selectedPlanId === 'sevendays' ? 7 : 1;
 
   const controllerCharges = extraControllers * EXTRA_CONTROLLER_COST_PER_DAY * durationDays;
   const finalSubtotal = baseCost + controllerCharges;
@@ -310,18 +309,13 @@ export default function Book() {
                 onChange={(e) => dispatch(selectPlan(e.target.value))}
                 style={{ width: '100%', height: '50px', fontSize: '1rem', border: '1px solid var(--glass-border)', borderRadius: '8px', padding: '0 1rem', background: 'var(--glass-bg)', color: 'var(--text-dark)' }}
               >
-                <optgroup label="Short-Term Session Plans">
-                  <option value="oneday">1 Day Rent — ₹699</option>
-                  <option value="twodays">2 Days Rent — ₹1,399</option>
-                  <option value="threedays">3 Days Rent — ₹1,999</option>
-                  <option value="fourdays">4 Days Rent — ₹2,699</option>
-                </optgroup>
-                <optgroup label="Long-Term Campaign Passes">
-                  <option value="fifteendays">15 Days Pass — ₹4,999</option>
-                  <option value="onemonth">1 Month Subscription — ₹7,999</option>
-                  <option value="twomonths">2 Months Ultimate — ₹13,999</option>
-                  <option value="threemonths">3 Months VIP Gamer — ₹19,999</option>
-                </optgroup>
+                <option value="oneday">1 Day Rent — ₹999</option>
+                <option value="twodays">2 Days Rent — ₹1,899</option>
+                <option value="threedays">3 Days Rent — ₹2,599</option>
+                <option value="fourdays">4 Days Rent — ₹2,999</option>
+                <option value="fivedays">5 Days Rent — ₹3,699</option>
+                <option value="sixdays">6 Days Rent — ₹3,999</option>
+                <option value="sevendays">7 Days Rent — ₹4,599</option>
               </select>
             </div>
 

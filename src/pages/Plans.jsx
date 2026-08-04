@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircleFilled, CloseCircleFilled, ShoppingCartOutlined, TrophyOutlined } from '@ant-design/icons';
-import { CTable, CButton, CSegmented, CTag } from '../components/custom';
+import { CTable, CButton, CTag } from '../components/custom';
 
 // Plan cards data
 const PASS_PLANS = [
@@ -9,37 +9,64 @@ const PASS_PLANS = [
     id: 'oneday',
     name: '1 Day Session',
     tag: 'TRIAL RUN',
-    price: '699',
+    price: '999',
     unit: '/ day',
-    desc: 'Perfect for weekend gatherings, couch co-op nights, or testing system exclusives.',
-    features: ['1 DualSense Controller', '2 Pre-loaded Games', 'Standard Support', '2-Hour Delivery Zone']
+    desc: 'Perfect for quick gatherings, co-op nights, or testing system exclusives.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Standard Support', '2-Hour Delivery Zone']
+  },
+  {
+    id: 'twodays',
+    name: '2 Days Session',
+    tag: 'WEEKEND PASS',
+    price: '1,899',
+    unit: '/ 2 days',
+    desc: 'Great for an immersive gaming experience over a short break or weekend.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Standard Support', '2-Hour Delivery Zone']
   },
   {
     id: 'threedays',
     name: '3 Days Session',
-    tag: 'BEST VALUE',
-    price: '1,999',
+    tag: 'MID-WEEK PASS',
+    price: '2,599',
     unit: '/ 3 days',
-    desc: 'Our most popular short term pass. Ideal to finish deep campaigns over the holidays.',
-    features: ['1 DualSense Controller', '3 Pre-loaded Games', 'Priority Support', '2-Hour Delivery Zone']
+    desc: 'Perfect short term pass to complete deep campaigns or play multiple games.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Priority Support', '2-Hour Delivery Zone']
   },
   {
-    id: 'fifteendays',
-    name: '15 Days Pass',
-    tag: 'CAMPAIGNER',
-    price: '4,999',
-    unit: '/ 15 days',
-    desc: 'Extended runtime pass. Complete multiple large RPGs with zero rush.',
-    features: ['2 DualSense Controllers', '5 Pre-loaded Games', '1 Free Game Swap', 'Express Dispatch']
+    id: 'fourdays',
+    name: '4 Days Pass',
+    tag: 'PRO GAMER',
+    price: '2,999',
+    unit: '/ 4 days',
+    desc: 'Excellent choice for multi-day gaming sessions with absolute comfort.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Priority Support', '2-Hour Delivery Zone']
   },
   {
-    id: 'onemonth',
-    name: '1 Month Pass',
-    tag: 'ULTIMATE UNLIMITED',
-    price: '7,999',
-    unit: '/ month',
-    desc: 'Maximum value subscription. Complete library access and round-the-clock swapping.',
-    features: ['2 DualSense Controllers', 'All SSD Games Installed', 'Unlimited Free Game Swaps', 'Instant VVIP Dispatch']
+    id: 'fivedays',
+    name: '5 Days Pass',
+    tag: 'ELITE PASS',
+    price: '3,699',
+    unit: '/ 5 days',
+    desc: 'Maximize your weekly gaming target with your favorite titles.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Priority Support', '2-Hour Delivery Zone']
+  },
+  {
+    id: 'sixdays',
+    name: '6 Days Pass',
+    tag: 'CHAMPION',
+    price: '3,999',
+    unit: '/ 6 days',
+    desc: 'Spend nearly a full week exploring next-gen blockbusters.',
+    features: ['1 DualSense Controller', '400+ Games Loaded', 'Priority Support', '2-Hour Delivery Zone']
+  },
+  {
+    id: 'sevendays',
+    name: '7 Days Pass',
+    tag: 'BEST VALUE',
+    price: '4,599',
+    unit: '/ 7 days',
+    desc: 'Our complete week-long ultimate unlimited gaming experience.',
+    features: ['1 DualSense Controller', 'All SSD Games Installed', 'Unlimited Free Game Swaps', 'Instant VVIP Dispatch']
   }
 ];
 
@@ -52,21 +79,15 @@ const columns = [
     render: (text) => <strong style={{ color: 'var(--text-dark)' }}>{text}</strong>
   },
   {
-    title: 'Short-Term (1-4 Days)',
+    title: 'Standard Pass (1-6 Days)',
     dataIndex: 'shortTerm',
     key: 'shortTerm',
     align: 'center'
   },
   {
-    title: 'Campaigner (15 Days)',
-    dataIndex: 'campaigner',
-    key: 'campaigner',
-    align: 'center'
-  },
-  {
-    title: 'Pro Gamer (1-3 Months)',
-    dataIndex: 'proGamer',
-    key: 'proGamer',
+    title: 'Weekly Pass (7 Days)',
+    dataIndex: 'weeklyPass',
+    key: 'weeklyPass',
     align: 'center'
   }
 ];
@@ -77,49 +98,41 @@ const data = [
     key: '1',
     feature: 'Refundable Security Deposit',
     shortTerm: <span style={{ color: 'var(--success)', fontWeight: 600 }}>₹0 (Zero Deposit)</span>,
-    campaigner: <span style={{ color: 'var(--success)', fontWeight: 600 }}>₹0 (Zero Deposit)</span>,
-    proGamer: <span style={{ color: 'var(--success)', fontWeight: 600 }}>₹0 (Zero Deposit)</span>
+    weeklyPass: <span style={{ color: 'var(--success)', fontWeight: 600 }}>₹0 (Zero Deposit)</span>
   },
   {
     key: '2',
     feature: 'Included Controllers',
     shortTerm: '1x DualSense Wireless',
-    campaigner: '2x DualSense Wireless',
-    proGamer: '2x DualSense Wireless'
+    weeklyPass: '1x DualSense Wireless (Extra available)'
   },
   {
     key: '3',
     feature: 'SSD Pre-loaded Blockbusters',
-    shortTerm: '2 - 3 Games',
-    campaigner: '5 Games',
-    proGamer: 'Full Library Access'
+    shortTerm: '400+ Games Access',
+    weeklyPass: 'All SSD Games Installed'
   },
   {
     key: '4',
     feature: 'Free Game Swaps',
     shortTerm: <CloseCircleFilled style={{ color: '#ff4d4f' }} />,
-    campaigner: '1 Swap Included',
-    proGamer: 'Unlimited Free Swaps'
+    weeklyPass: 'Unlimited Free Swaps'
   },
   {
     key: '5',
     feature: 'Doorstep Setup & Pick-up',
     shortTerm: <CheckCircleFilled style={{ color: '#52c41a' }} />,
-    campaigner: <CheckCircleFilled style={{ color: '#52c41a' }} />,
-    proGamer: <CheckCircleFilled style={{ color: '#52c41a' }} />
+    weeklyPass: <CheckCircleFilled style={{ color: '#52c41a' }} />
   },
   {
     key: '6',
     feature: 'KYC Document Validation',
     shortTerm: 'Standard Upload',
-    campaigner: 'Standard Upload',
-    proGamer: 'VVIP Fast-Track'
+    weeklyPass: 'Standard Upload'
   }
 ];
 
 export default function Plans() {
-  const [billingCycle, setBillingCycle] = useState('Short-Term');
-
   return (
     <>
       {/* HERO BREADCRUMB */}
@@ -130,26 +143,13 @@ export default function Plans() {
           <p style={{ color: 'var(--text-muted)', maxWidth: '600px', margin: '0 auto' }}>
             Flexible rentals with zero security deposits. Get the latest PS5 Console delivered, wired, and set up at your home.
           </p>
-
-          <div style={{ marginTop: '2.5rem' }}>
-            <CSegmented
-              options={['Short-Term', 'Long-Term Pass']}
-              value={billingCycle}
-              onChange={(value) => setBillingCycle(value)}
-              size="large"
-              style={{ padding: '4px', borderRadius: '12px' }}
-            />
-          </div>
         </div>
       </section>
 
       {/* PLAN CARDS GRID */}
       <section className="container" style={{ paddingBottom: '4rem' }}>
         <div className="plans-grid">
-          {PASS_PLANS.filter(p => {
-            if (billingCycle === 'Short-Term') return p.id === 'oneday' || p.id === 'threedays';
-            return p.id === 'fifteendays' || p.id === 'onemonth';
-          }).map((plan) => (
+          {PASS_PLANS.map((plan) => (
             <div className="plan-card glass-card" key={plan.id} style={{ padding: '2.5rem 2rem', position: 'relative', overflow: 'hidden' }}>
               
               {plan.tag === 'BEST VALUE' && (
@@ -214,3 +214,4 @@ export default function Plans() {
     </>
   );
 }
+

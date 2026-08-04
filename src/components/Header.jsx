@@ -83,13 +83,7 @@ export default function Header() {
               <a href="#pricing-plans" onClick={(e) => handleNavClick(e, '#pricing-plans', 'pricing-plans')} className="nav-link">Plans</a>
             </div>
             <div className="nav-item">
-              <a href="#games-library" onClick={(e) => handleNavClick(e, '#games-library', 'games-library')} className="nav-link">Games</a>
-            </div>
-            <div className="nav-item">
               <a href="#how-it-works" onClick={(e) => handleNavClick(e, '#how-it-works', 'how-it-works')} className="nav-link">How It Works</a>
-            </div>
-            <div className="nav-item">
-              <a href="#showcase-gallery" onClick={(e) => handleNavClick(e, '#showcase-gallery', 'showcase-gallery')} className="nav-link">Gallery</a>
             </div>
             <div className="nav-item">
               <a href="#reviews" onClick={(e) => handleNavClick(e, '#reviews', 'reviews')} className="nav-link">Reviews</a>
@@ -161,9 +155,7 @@ export default function Header() {
           <Link to="/" className="mobile-link" onClick={() => setIsMobileOpen(false)}>Home</Link>
           
           <a href="#pricing-plans" onClick={(e) => handleNavClick(e, '#pricing-plans', 'pricing-plans')} className="mobile-link">Plans</a>
-          <a href="#games-library" onClick={(e) => handleNavClick(e, '#games-library', 'games-library')} className="mobile-link">Games</a>
           <a href="#how-it-works" onClick={(e) => handleNavClick(e, '#how-it-works', 'how-it-works')} className="mobile-link">How It Works</a>
-          <a href="#showcase-gallery" onClick={(e) => handleNavClick(e, '#showcase-gallery', 'showcase-gallery')} className="mobile-link">Gallery</a>
           <a href="#reviews" onClick={(e) => handleNavClick(e, '#reviews', 'reviews')} className="mobile-link">Reviews</a>
           
           <Link to="/faq" className="mobile-link" onClick={() => setIsMobileOpen(false)}>FAQ</Link>

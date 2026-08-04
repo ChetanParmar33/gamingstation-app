@@ -4,7 +4,8 @@ import {
   FaBolt, FaGamepad, FaShieldAlt, FaStar, FaChevronRight, FaChevronLeft, FaChevronDown,
   FaSearch, FaCheckCircle, FaTimesCircle, FaPlus, FaMotorcycle, FaWhatsapp,
   FaFacebookF, FaInstagram, FaYoutube, FaTwitter, FaPhoneAlt, FaEnvelope,
-  FaMapMarkerAlt, FaRegFileAlt, FaCheck, FaInfoCircle, FaClock, FaHandsWash
+  FaMapMarkerAlt, FaRegFileAlt, FaCheck, FaInfoCircle, FaClock, FaHandsWash,
+  FaCalendarAlt, FaCrown, FaGift
 } from 'react-icons/fa';
 
 const GAMES_DATA = [
@@ -156,13 +157,191 @@ const FAQ_ITEMS = [
   }
 ];
 
+const RENTAL_PLANS = [
+  { 
+    id: 'oneday', 
+    name: '1 DAY', 
+    period: '24 Hours', 
+    price: '999', 
+    color: '#3b82f6', 
+    icon: 'gamepad',
+    features: ['400+ Games Access', '1 DualSense Controller', '2-Hour Delivery Zone', 'Standard Technical Support'],
+    desc: 'Perfect for quick gatherings, co-op nights, or testing system exclusives.',
+    tag: 'TRIAL RUN'
+  },
+  { 
+    id: 'twodays', 
+    name: '2 DAYS', 
+    period: '48 Hours', 
+    price: '1,899', 
+    color: '#a855f7', 
+    icon: 'calendar',
+    features: ['400+ Games Access', '1 DualSense Controller', '2-Hour Delivery Zone', 'Standard Technical Support'],
+    desc: 'Great for an immersive gaming experience over a short break or weekend.',
+    tag: 'WEEKEND PASS'
+  },
+  { 
+    id: 'threedays', 
+    name: '3 DAYS', 
+    period: '72 Hours', 
+    price: '2,599', 
+    color: '#f97316', 
+    icon: 'calendar',
+    features: ['400+ Games Access', '1 DualSense Controller', '2-Hour Delivery Zone', 'Priority Technical Support'],
+    desc: 'Perfect short term pass to complete deep campaigns or play multiple games.',
+    tag: 'MID-WEEK PASS'
+  },
+  { 
+    id: 'fourdays', 
+    name: '4 DAYS', 
+    period: '96 Hours', 
+    price: '2,999', 
+    color: '#06b6d4', 
+    icon: 'calendar',
+    features: ['400+ Games Access', '1 DualSense Controller', '2-Hour Delivery Zone', 'Priority Technical Support'],
+    desc: 'Excellent choice for multi-day gaming sessions with absolute comfort.',
+    tag: 'PRO GAMER'
+  },
+  { 
+    id: 'fivedays', 
+    name: '5 DAYS', 
+    period: '120 Hours', 
+    price: '3,699', 
+    color: '#ec4899', 
+    icon: 'gift',
+    features: ['400+ Games Access', '1 DualSense Controller + 1 Controller FREE', '2-Hour Delivery Zone', 'Priority Support'],
+    desc: 'Maximize your weekly gaming target with your favorite titles and friends.',
+    tag: 'ELITE PASS'
+  },
+  { 
+    id: 'sixdays', 
+    name: '6 DAYS', 
+    period: '144 Hours', 
+    price: '3,999', 
+    color: '#eab308', 
+    icon: 'gift',
+    features: ['400+ Games Access', '1 DualSense Controller + 1 Controller FREE', '2-Hour Delivery Zone', 'Priority Support'],
+    desc: 'Spend nearly a full week exploring next-gen blockbusters with friends.',
+    tag: 'CHAMPION'
+  },
+  { 
+    id: 'sevendays', 
+    name: '7 DAYS', 
+    period: '1 Week', 
+    price: '4,599', 
+    color: '#3b82f6', 
+    icon: 'crown',
+    features: ['400+ Games Access', '1 DualSense Controller + 1 Controller FREE', 'Instant VVIP Delivery', 'Priority 24/7 Support'],
+    desc: 'Our complete week-long ultimate unlimited gaming experience. Best value per day.',
+    tag: 'BEST VALUE', 
+    isRecommended: true 
+  }
+];
+
+const getPlanIcon = (iconName) => {
+  switch (iconName) {
+    case 'gamepad': return <FaGamepad />;
+    case 'calendar': return <FaCalendarAlt />;
+    case 'gift': return <FaGift />;
+    case 'crown': return <FaCrown />;
+    default: return <FaGamepad />;
+  }
+};
+
+const hexToRgb = (hex) => {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : '59, 130, 246';
+};
+
+const PS5ConsoleSVG = () => (
+  <svg width="60" height="90" viewBox="0 0 60 90" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 15px rgba(255, 255, 255, 0.2))' }}>
+    <path d="M12 5C16 12 18 35 18 55C18 75 16 82 12 85C16 85 20 78 22 55C24 32 20 12 12 5Z" fill="#ffffff"/>
+    <path d="M48 5C44 12 42 35 42 55C42 75 44 82 48 85C44 85 40 78 38 55C36 32 40 12 48 5Z" fill="#ffffff" opacity="0.95"/>
+    <path d="M18 10C22 15 24 35 24 55C24 72 22 80 18 82C22 82 38 82 42 82C38 80 36 72 36 55C36 35 38 15 42 10H18Z" fill="#0d111a"/>
+    <path d="M18 10C22 15 24 35 24 55" stroke="#3b82f6" strokeWidth="1" strokeLinecap="round" opacity="0.8"/>
+    <path d="M42 10C38 15 36 35 36 55" stroke="#3b82f6" strokeWidth="1" strokeLinecap="round" opacity="0.8"/>
+    <path d="M38 60C38 68 40 75 42 78V60H38Z" fill="#ffffff"/>
+  </svg>
+);
+
+const ControllerSVG = () => (
+  <svg width="80" height="60" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 12px rgba(255, 255, 255, 0.15))' }}>
+    <path d="M15 15C22 10 58 10 65 15C72 18 78 32 75 48C73 52 68 55 64 50C60 46 56 36 54 34H26C24 36 20 46 16 50C12 55 7 52 5 48C2 32 8 18 15 15Z" fill="#ffffff"/>
+    <path d="M25 15H55V25C55 32 48 38 40 38C32 38 25 32 25 25V15Z" fill="#0e131f"/>
+    <circle cx="32" cy="36" r="7" fill="#374151"/>
+    <circle cx="48" cy="36" r="7" fill="#374151"/>
+    <path d="M13 22H19V28H13V22Z" fill="#d1d5db"/>
+    <path d="M16 19H16V31" stroke="#d1d5db" strokeWidth="2"/>
+    <circle cx="64" cy="22" r="2.5" fill="#d1d5db"/>
+    <circle cx="68" cy="25" r="2.5" fill="#d1d5db"/>
+    <circle cx="60" cy="25" r="2.5" fill="#d1d5db"/>
+    <circle cx="64" cy="28" r="2.5" fill="#d1d5db"/>
+  </svg>
+);
+
+const PSPlusDeluxeGold = () => (
+  <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 12px rgba(234, 179, 8, 0.4))' }}>
+    <path d="M22 10H38V22H50V38H38V50H22V38H10V22H22V10Z" fill="url(#goldGradient)" stroke="#eab308" strokeWidth="2"/>
+    <circle cx="30" cy="16" r="2.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="30" cy="44" r="2.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="16" cy="30" r="2.5" fill="#ffffff" opacity="0.9"/>
+    <circle cx="44" cy="30" r="2.5" fill="#ffffff" opacity="0.9"/>
+    <defs>
+      <linearGradient id="goldGradient" x1="10" y1="10" x2="50" y2="50" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="#fef08a" />
+        <stop offset="50%" stopColor="#eab308" />
+        <stop offset="100%" stopColor="#ca8a04" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
+const HDMICableSVG = () => (
+  <svg width="70" height="60" viewBox="0 0 70 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 10px rgba(6, 182, 212, 0.3))' }}>
+    <rect x="25" y="10" width="20" height="15" rx="2" fill="#1f2937" stroke="#4b5563" strokeWidth="1"/>
+    <rect x="28" y="5" width="14" height="5" fill="#fbbf24"/>
+    <line x1="31" y1="5" x2="31" y2="10" stroke="#1f2937" strokeWidth="1"/>
+    <line x1="34" y1="5" x2="34" y2="10" stroke="#1f2937" strokeWidth="1"/>
+    <line x1="37" y1="5" x2="37" y2="10" stroke="#1f2937" strokeWidth="1"/>
+    <line x1="40" y1="5" x2="40" y2="10" stroke="#1f2937" strokeWidth="1"/>
+    <path d="M35 25C35 35 45 40 45 55" stroke="#111827" strokeWidth="6" strokeLinecap="round"/>
+    <path d="M35 25C35 35 45 40 45 55" stroke="#374151" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+const PowerCableSVG = () => (
+  <svg width="70" height="60" viewBox="0 0 70 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 10px rgba(236, 72, 153, 0.3))' }}>
+    <rect x="22" y="15" width="26" height="20" rx="4" fill="#1f2937" stroke="#4b5563" strokeWidth="1"/>
+    <rect x="27" y="5" width="4" height="10" rx="1" fill="#cbd5e0"/>
+    <rect x="39" y="5" width="4" height="10" rx="1" fill="#cbd5e0"/>
+    <path d="M35 35C35 42 25 45 25 55" stroke="#111827" strokeWidth="6" strokeLinecap="round"/>
+    <path d="M35 35C35 42 25 45 25 55" stroke="#374151" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+const LANCableSVG = () => (
+  <svg width="70" height="60" viewBox="0 0 70 60" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ filter: 'drop-shadow(0 0 10px rgba(59, 130, 246, 0.3))' }}>
+    <rect x="25" y="12" width="20" height="18" rx="2" fill="#e2e8f0" stroke="#cbd5e0" strokeWidth="1"/>
+    <rect x="29" y="5" width="12" height="7" fill="#93c5fd" opacity="0.8"/>
+    <path d="M31 15L35 6L39 15H31Z" fill="#cbd5e0"/>
+    <path d="M35 30C35 38 45 42 45 55" stroke="#2563eb" strokeWidth="6" strokeLinecap="round"/>
+    <path d="M35 30C35 38 45 42 45 55" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+const INCLUDED_ITEMS = [
+  { id: 'ps5', title: 'PS5 Console', desc: 'Latest Model Disc Edition', visual: <PS5ConsoleSVG /> },
+  { id: 'controller', title: 'DualSense Controller', desc: 'Wireless Next-Gen Control', visual: <ControllerSVG /> },
+  { id: 'psplus', title: 'PS Plus Deluxe', desc: '400+ Games Included', visual: <PSPlusDeluxeGold /> },
+  { id: 'hdmi', title: 'HDMI Cable', desc: 'High Speed HDMI 2.1', visual: <HDMICableSVG /> },
+  { id: 'power', title: 'Power Cable', desc: 'Safe & Reliable Power Supply', visual: <PowerCableSVG /> },
+  { id: 'lan', title: 'LAN Cable', desc: 'Stable & Fast Internet', visual: <LANCableSVG /> }
+];
+
 export default function Home() {
-  const [isLongTerm, setIsLongTerm] = useState(false);
-  const [activeTab, setActiveTab] = useState('All');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedGame, setSelectedGame] = useState(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [expandedFaq, setExpandedFaq] = useState(null);
+  const [expandedPlanId, setExpandedPlanId] = useState(null);
   const location = useLocation();
 
   const startSlideShow = () => {
@@ -186,12 +365,6 @@ export default function Home() {
     }
   }, [location]);
 
-  // Filter games based on category and search
-  const filteredGames = GAMES_DATA.filter(game => {
-    const matchesCategory = activeTab === 'All' || game.category === activeTab;
-    const matchesSearch = game.title.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
 
   return (
     <div className="home-root-wrapper">
@@ -296,166 +469,63 @@ export default function Home() {
             </h2>
           </div>
 
-          {/* Toggle Switch */}
-          <div className="plan-toggle-buttons">
-            <button 
-              className={`plan-toggle-btn ${!isLongTerm ? 'active' : ''}`}
-              onClick={() => setIsLongTerm(false)}
-            >
-              Short-Term Plans
-            </button>
-            <button 
-              className={`plan-toggle-btn ${isLongTerm ? 'active' : ''}`}
-              onClick={() => setIsLongTerm(true)}
-            >
-              Long-Term Plans
-            </button>
-          </div>
-
           {/* Pricing Grid */}
-          <div className="plans-grid">
-            {!isLongTerm ? (
-              <>
-                {/* 1 Day */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">1 Day <span className="duration-label">(24 Hours)</span></h3>
+          <div className="plans-list-container">
+            {RENTAL_PLANS.map((plan) => (
+              <div 
+                key={plan.id} 
+                className={`collapsible-plan-row ${expandedPlanId === plan.id ? 'expanded' : ''} ${plan.isRecommended ? 'recommended' : ''}`}
+                onClick={() => setExpandedPlanId(expandedPlanId === plan.id ? null : plan.id)}
+                style={{ '--plan-color': plan.color, '--plan-color-rgb': hexToRgb(plan.color) }}
+              >
+                <div className="plan-row-main">
+                  <div className="plan-row-icon-box">
+                    {getPlanIcon(plan.icon)}
                   </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">499</span>
+                  
+                  <div className="plan-row-info">
+                    <div className="plan-row-title-row">
+                      <h4 className="plan-row-title">{plan.name}</h4>
+                      <span className="plan-row-period">({plan.period})</span>
+                    </div>
+                    <div className="plan-row-bullets">
+                      <span>• 400+ Games</span>
+                      <span>• {plan.id === 'fivedays' || plan.id === 'sixdays' || plan.id === 'sevendays' ? '+1 Controller FREE' : '1 Controller'}</span>
+                    </div>
                   </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 1 Controller</li>
-                    <li><FaCheck /> 2-Hour Delivery</li>
-                  </ul>
-                  <Link to="/book?plan=oneday" className="btn btn-primary w-100">Select Plan</Link>
+                  
+                  <div className="plan-row-right">
+                    <span className="plan-row-price">₹{plan.price}</span>
+                    <FaChevronRight className="plan-row-arrow" />
+                  </div>
+
+                  {plan.isRecommended && (
+                    <span className="plan-row-recommended-badge">BEST VALUE</span>
+                  )}
                 </div>
 
-                {/* 2 Days */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">2 Days</h3>
+                <div className="plan-row-details">
+                  <div className="plan-details-content">
+                    <p className="plan-details-desc">{plan.desc}</p>
+                    <div className="plan-details-features">
+                      <h5>Included Features:</h5>
+                      <ul>
+                        {plan.features.map((feat, idx) => (
+                          <li key={idx}><FaCheck className="feature-check-icon" /> {feat}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <Link 
+                      to={`/book?plan=${plan.id}`} 
+                      className="btn btn-primary plan-book-btn"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Book This Plan
+                    </Link>
                   </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">949</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 1 Controller</li>
-                    <li><FaCheck /> 2-Hour Delivery</li>
-                  </ul>
-                  <Link to="/book?plan=twodays" className="btn btn-primary w-100">Select Plan</Link>
                 </div>
-
-                {/* 3 Days */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">3 Days</h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">1,499</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 1 Controller</li>
-                    <li><FaCheck /> 2-Hour Delivery</li>
-                  </ul>
-                  <Link to="/book?plan=threedays" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-
-                {/* 1 Week */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">1 Week <span className="duration-label">(7 Days)</span></h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">2,899</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 1 Controller</li>
-                    <li><FaCheck /> 1 Extra Controller</li>
-                  </ul>
-                  <Link to="/book?plan=sevendays" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-              </>
-            ) : (
-              <>
-                {/* 15 Days */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">15 Days</h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">5,499</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 2 Controllers</li>
-                    <li><FaCheck /> Priority Support</li>
-                  </ul>
-                  <Link to="/book?plan=fifteendays" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-
-                {/* 1 Month */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">1 Month</h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">9,999</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 2 Controllers</li>
-                    <li><FaCheck /> Priority Support</li>
-                  </ul>
-                  <Link to="/book?plan=onemonth" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-
-                {/* 2 Months */}
-                <div className="plan-card glass-card">
-                  <div className="plan-header">
-                    <h3 className="plan-name">2 Months</h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">18,999</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 2 Controllers</li>
-                    <li><FaCheck /> Priority Support</li>
-                  </ul>
-                  <Link to="/book?plan=twomonths" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-
-                {/* 3 Months */}
-                <div className="plan-card glass-card recommended-plan">
-                  <span className="recommended-badge">BEST VALUE</span>
-                  <div className="plan-header">
-                    <h3 className="plan-name">3 Months</h3>
-                  </div>
-                  <div className="plan-price-box">
-                    <span className="plan-currency">₹</span>
-                    <span className="plan-price">26,999</span>
-                  </div>
-                  <ul className="plan-features">
-                    <li><FaCheck /> 400+ Games</li>
-                    <li><FaCheck /> 2 Controllers</li>
-                    <li><FaCheck /> Priority Support</li>
-                  </ul>
-                  <Link to="/book?plan=threemonths" className="btn btn-primary w-100">Select Plan</Link>
-                </div>
-              </>
-            )}
+              </div>
+            ))}
           </div>
 
           {/* Quick value badges bottom bar */}
@@ -482,143 +552,31 @@ export default function Home() {
           </div>
 
           <div className="package-grid">
-            {/* PS5 Console */}
-            <div className="package-item glass-card text-center">
-              <div className="package-image-container">
-                <img src="/assets/ps5_hero.png" alt="PlayStation 5 Console" className="package-console-img" />
-              </div>
-              <h4>PlayStation 5 Console</h4>
-              <p>Disc Edition – Latest Model</p>
-            </div>
-
-            {/* Controller */}
-            <div className="package-item glass-card text-center">
-              <div className="package-image-container">
-                <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&auto=format&fit=crop&q=80" alt="DualSense Controller" className="package-controller-img" />
-              </div>
-              <h4>DualSense Controller</h4>
-              <p>Wireless Next-Gen Controller</p>
-            </div>
-
-            {/* Subscription */}
-            <div className="package-item glass-card text-center">
-              <div className="package-image-container flex-center">
-                <div className="ps-plus-deluxe-badge">
-                  <span className="ps-icon">&oplus;</span>
-                  <span className="ps-title">PlayStation Plus</span>
-                  <span className="ps-tier">DELUXE</span>
+            {INCLUDED_ITEMS.map((item) => (
+              <div key={item.id} className="package-item glass-card">
+                <span className="package-checkmark"><FaCheck /></span>
+                <div className="package-image-container">
+                  {item.visual}
                 </div>
-              </div>
-              <h4>PS Plus Deluxe Subscription</h4>
-              <p>400+ Games Access</p>
-            </div>
-
-            {/* Cable Kit */}
-            <div className="package-item glass-card text-center">
-              <div className="package-image-container flex-center">
-                <div className="cables-visual-box">
-                  <span className="cable-connector"></span>
-                  <span className="cable-connector"></span>
-                  <span className="cable-connector"></span>
-                </div>
-              </div>
-              <h4>Complete Cable Kit</h4>
-              <p>HDMI, Power, USB, LAN Cables</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. FILTERABLE GAMES LIBRARY */}
-      <section className="games-section" id="games-library">
-        <div className="container">
-          <div className="text-center">
-            <h2 className="section-title">400+ GAMES LIBRARY</h2>
-            <p className="section-desc">Something for every gamer!</p>
-          </div>
-
-          {/* Search and Category Filters */}
-          <div className="games-filters-container">
-            <div className="game-search-box">
-              <FaSearch className="search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search games..." 
-                className="game-search-input" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            
-            <div className="games-tabs">
-              {['All', 'Action', 'Adventure', 'Sports', 'Racing', 'Fighting'].map(category => (
-                <button 
-                  key={category}
-                  className={`game-tab-btn ${activeTab === category ? 'active' : ''}`}
-                  onClick={() => setActiveTab(category)}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Games Grid */}
-          <div className="games-grid">
-            {filteredGames.slice(0, 8).map(game => (
-              <div 
-                key={game.id}
-                className="game-card glass-card"
-                onClick={() => setSelectedGame(game)}
-              >
-                <div className="game-image-wrapper">
-                  <img src={game.image} alt={game.title} className="game-image" />
-                  <span className="game-rating-tag"><FaStar className="star-icon" /> {game.rating}</span>
-                </div>
-                <div className="game-info text-center">
-                  <span className="game-genre-label">{game.category}</span>
-                  <h4 className="game-title">{game.title}</h4>
-                </div>
+                <h4>{item.title}</h4>
+                <p>{item.desc}</p>
               </div>
             ))}
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
-            <Link to="/plans" className="btn btn-secondary">
-              View All Games (400+) <FaPlus style={{ fontSize: '0.8rem', marginLeft: '0.4rem' }} />
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* GAME DETAIL MODAL POPUP */}
-      {selectedGame && (
-        <div className="game-modal active" id="game-detail-modal" onClick={() => setSelectedGame(null)}>
-          <div className="game-modal-card glass-card" onClick={(e) => e.stopPropagation()}>
-            <button className="game-modal-close" onClick={() => setSelectedGame(null)}>&times;</button>
-            <div className="game-modal-body">
-              <div className="game-modal-image-col">
-                <img src={selectedGame.image} alt={selectedGame.title} className="game-modal-img" />
+            
+            {/* Sanitized Bar */}
+            <div className="package-item-full glass-card">
+              <div className="package-item-full-icon">
+                <FaShieldAlt />
               </div>
-              <div className="game-modal-content-col">
-                <span className="game-modal-genre">{selectedGame.category}</span>
-                <h2 className="game-modal-title">{selectedGame.title}</h2>
-                <div className="game-modal-stats">
-                  <span className="stat-pill"><FaStar /> {selectedGame.rating} / 10</span>
-                  <span className="stat-pill"><FaClock /> {selectedGame.release}</span>
-                  <span className="stat-pill"><FaGamepad /> {selectedGame.mode}</span>
-                </div>
-                <p className="game-modal-desc">{selectedGame.description}</p>
-                <div style={{ marginTop: '2rem' }}>
-                  <Link to="/book" className="btn btn-primary" onClick={() => setSelectedGame(null)}>
-                    Book PS5 with this game
-                  </Link>
-                </div>
+              <div className="package-item-full-texts">
+                <h4>Sanitized & Quality Checked</h4>
+                <p>UV Sanitized • 100% Clean</p>
               </div>
             </div>
           </div>
         </div>
-      )}
+      </section>
+
 
       {/* 6. HOW IT WORKS */}
       <section className="how-section" id="how-it-works">
@@ -657,42 +615,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. REAL SETUPS SHOWCASE */}
-      <section className="gallery-section" id="showcase-gallery">
-        <div className="container">
-          <div className="text-center">
-            <h2 className="section-title decoration-accent">
-              <span className="dec-line">&larr;&larr;</span> REAL SETUPS. REAL GAMERS. <span className="dec-line">&rarr;&rarr;</span>
-            </h2>
-          </div>
-
-          <div className="gallery-layout-grid">
-            <div className="gallery-main-item glass-card">
-              <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=500&auto=format&fit=crop&q=80" alt="Setup 1" />
-            </div>
-            <div className="gallery-sub-grid">
-              <div className="gallery-sub-item glass-card">
-                <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=300&auto=format&fit=crop&q=80" alt="Setup 2" />
-              </div>
-              <div className="gallery-sub-item glass-card">
-                <img src="https://images.unsplash.com/photo-1552820728-8b83bb6b773f?w=300&auto=format&fit=crop&q=80" alt="Setup 3" />
-              </div>
-              <div className="gallery-sub-item glass-card">
-                <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&auto=format&fit=crop&q=80" alt="Setup 4" />
-              </div>
-              <div className="gallery-sub-item glass-card">
-                <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=300&auto=format&fit=crop&q=80" alt="Setup 5" />
-              </div>
-            </div>
-          </div>
-
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <button className="btn btn-secondary">
-              View More Setups <FaChevronDown style={{ marginLeft: '0.4rem', fontSize: '0.8rem' }} />
-            </button>
-          </div>
-        </div>
-      </section>
 
       {/* 8. WHAT OUR GAMERS SAY */}
       <section className="testimonials-section" id="reviews">
@@ -764,8 +686,10 @@ export default function Home() {
                           {expandedFaq === idx ? <FaTimesCircle /> : <FaPlus />}
                         </span>
                       </div>
-                      <div className="faq-accordion-body" style={{ display: expandedFaq === idx ? 'block' : 'none' }}>
-                        <p>{faq.answer}</p>
+                      <div className={`faq-accordion-body ${expandedFaq === idx ? 'expanded' : ''}`}>
+                        <div className="faq-accordion-content">
+                          <p>{faq.answer}</p>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -786,8 +710,10 @@ export default function Home() {
                             {expandedFaq === realIdx ? <FaTimesCircle /> : <FaPlus />}
                           </span>
                         </div>
-                        <div className="faq-accordion-body" style={{ display: expandedFaq === realIdx ? 'block' : 'none' }}>
-                          <p>{faq.answer}</p>
+                        <div className={`faq-accordion-body ${expandedFaq === realIdx ? 'expanded' : ''}`}>
+                          <div className="faq-accordion-content">
+                            <p>{faq.answer}</p>
+                          </div>
                         </div>
                       </div>
                     );
@@ -866,9 +792,7 @@ export default function Home() {
             <ul>
               <li><Link to="/">Home</Link></li>
               <li><a href="#pricing-plans">Plans</a></li>
-              <li><a href="#games-library">Games</a></li>
               <li><a href="#how-it-works">How It Works</a></li>
-              <li><a href="#showcase-gallery">Gallery</a></li>
               <li><a href="#reviews">Reviews</a></li>
               <li><Link to="/faq">FAQ</Link></li>
               <li><Link to="/about">Contact Us</Link></li>

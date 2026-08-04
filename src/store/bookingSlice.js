@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   currentStep: 0,
-  selectedPlanId: '1-day-rent',
+  selectedPlanId: 'oneday',
   extraControllers: 0,
   customerInfo: {
     name: '',
