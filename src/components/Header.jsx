@@ -1,10 +1,25 @@
 import React from 'react';
 
 export default function Header({ serverConnected }) {
+  const toggleMobileMenu = () => {
+    document.getElementById('appShell')?.classList.toggle('mobile-nav-open');
+  };
+
+  const toggleNotifPanel = e => {
+    e.stopPropagation();
+    document.getElementById('notifDropdownPanel')?.classList.toggle('hidden');
+  };
+
   return (
     <header className="top-header">
       <div className="header-left">
-        <button type="button" id="mobileMenuBtn" className="mobile-menu-btn" aria-label="Toggle Navigation">
+        <button
+          type="button"
+          id="mobileMenuBtn"
+          className="mobile-menu-btn"
+          aria-label="Toggle Navigation"
+          onClick={toggleMobileMenu}
+        >
           <i className="fa-solid fa-bars"></i>
         </button>
         <div className="page-heading">
@@ -35,7 +50,7 @@ export default function Header({ serverConnected }) {
 
         {/* Node.js Backend Status Pill */}
         <div
-          className="lang-switch-wrap"
+          className="lang-switch-wrap server-status-pill"
           title={serverConnected ? 'Node.js Backend Connected' : 'Local Storage Fallback Mode'}
           style={{ fontSize: '0.78rem', fontWeight: 600 }}
         >
@@ -45,10 +60,11 @@ export default function Header({ serverConnected }) {
               height: 8,
               borderRadius: '50%',
               background: serverConnected ? 'var(--success)' : 'var(--warning)',
-              display: 'inline-block'
+              display: 'inline-block',
+              flexShrink: 0
             }}
           />
-          <span>{serverConnected ? 'Server Connected' : 'Offline Mode'}</span>
+          <span className="status-text">{serverConnected ? 'Server Connected' : 'Offline Mode'}</span>
         </div>
 
         {/* Language Selector (English / Hindi / Gujarati) */}
@@ -74,7 +90,7 @@ export default function Header({ serverConnected }) {
 
         {/* Notification Bell & Panel */}
         <div className="notif-wrapper">
-          <button type="button" id="notifBellBtn" className="icon-btn" title="Reminders">
+          <button type="button" id="notifBellBtn" className="icon-btn" title="Reminders" onClick={toggleNotifPanel}>
             <i className="fa-solid fa-bell"></i>
             <span id="notifBadgeCount" className="notif-count">0</span>
           </button>

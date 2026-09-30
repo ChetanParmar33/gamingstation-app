@@ -25,11 +25,15 @@ export default function App() {
     ApiService.bootstrap();
   }, []);
 
+  const closeMobileNav = () => {
+    document.getElementById('appShell')?.classList.remove('mobile-nav-open');
+  };
+
   return (
     <>
       <LoginScreen />
       <div id="appShell" className="app-shell hidden">
-        <div id="sidebarOverlay" className="sidebar-overlay"></div>
+        <div id="sidebarOverlay" className="sidebar-overlay" onClick={closeMobileNav}></div>
         <Sidebar />
         <div className="main-wrapper">
           <Header serverConnected={serverConnected} />

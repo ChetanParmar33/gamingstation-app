@@ -150,7 +150,7 @@ GZ.Partners = {
       title: `<i class="fa-solid fa-user-shield" style="color:var(--primary);margin-right:6px;"></i> ${GZ.Utils.escapeHtml(partner.name)} — Complete Transaction Ledger`,
       size: 'lg',
       bodyHtml: `
-        <div class="detail-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.1rem;">
+        <div class="detail-grid detail-grid-4">
           <div class="detail-item"><span>Total Invested</span><strong class="mono" style="color:var(--primary);">${GZ.Utils.formatINR(partner.invested)}</strong></div>
           <div class="detail-item"><span>Paid Amount</span><strong class="mono" style="color:var(--success);">${GZ.Utils.formatINR(partner.paid)}</strong></div>
           <div class="detail-item"><span>Pending Amount</span><strong class="mono" style="color:var(--danger);">${GZ.Utils.formatINR(partner.pending)}</strong></div>

@@ -209,7 +209,7 @@ GZ.Reports = {
     });
 
     return `
-      <div class="dashboard-lists-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="dashboard-lists-grid report-grid-3">
         <div class="table-card">
           <div class="card-header"><h3><i class="fa-solid fa-calendar"></i> Expenses by Month</h3></div>
           <div class="table-responsive">
@@ -269,7 +269,7 @@ GZ.Reports = {
     return `
       <div class="table-card">
         <div class="card-header">
-          <h3><i class="fa-solid fa-gamepad"></i> GameZone Hardware & Asset Valuation Report</h3>
+          <h3><i class="fa-solid fa-gamepad"></i> Gaming Station Hardware & Asset Valuation Report</h3>
           <span class="badge badge-paid">Total Asset Value: ${GZ.Utils.formatINR(totalVal)} (${totalUnits} Units)</span>
         </div>
         <div class="table-responsive">

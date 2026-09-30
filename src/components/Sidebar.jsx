@@ -2,6 +2,9 @@ import React from 'react';
 
 export default function Sidebar() {
   const nav = page => () => window.GZ?.App?.navigateTo(page);
+  const toggleCollapse = () => {
+    document.getElementById('appShell')?.classList.toggle('sidebar-collapsed');
+  };
 
   return (
     <aside className="sidebar">
@@ -13,7 +16,13 @@ export default function Sidebar() {
             <span className="brand-subtitle">Business Records</span>
           </div>
         </div>
-        <button type="button" id="sidebarCollapseBtn" className="sidebar-collapse-btn" title="Hide / Show Menu">
+        <button
+          type="button"
+          id="sidebarCollapseBtn"
+          className="sidebar-collapse-btn"
+          title="Hide / Show Menu"
+          onClick={toggleCollapse}
+        >
           <i className="fa-solid fa-bars"></i>
         </button>
       </div>
