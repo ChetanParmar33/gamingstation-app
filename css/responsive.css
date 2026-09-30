@@ -1,0 +1,207 @@
+/* ==========================================================================
+   GameZone Business Management Dashboard — Responsive & Print Stylesheet
+   ========================================================================== */
+
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 8, 24, 0.58);
+  backdrop-filter: blur(3px);
+  z-index: 950;
+}
+
+/* Large Desktop / Laptop Breakpoint (<= 1360px) */
+@media (max-width: 1360px) {
+  .kpi-grid-6 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .fin-summary-metrics {
+    grid-template-columns: repeat(3, auto);
+    gap: 1.1rem;
+  }
+}
+
+/* Tablet Landscape (<= 1080px) */
+@media (max-width: 1080px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dashboard-lists-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .global-search-wrap {
+    width: 230px;
+  }
+}
+
+/* Tablet Portrait & Mobile Drawer (<= 860px) */
+@media (max-width: 860px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width) !important;
+  }
+
+  .app-shell.mobile-nav-open .sidebar {
+    transform: translateX(0);
+  }
+
+  .app-shell.mobile-nav-open .sidebar-overlay {
+    display: block;
+  }
+
+  .sidebar-collapse-btn {
+    display: none;
+  }
+
+  .main-wrapper,
+  .app-shell.sidebar-collapsed .main-wrapper {
+    margin-left: 0;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  .top-header {
+    padding: 0 1rem;
+  }
+
+  .content-area {
+    padding: 1.15rem 1rem 2rem;
+  }
+
+  .kpi-grid-6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .fin-summary-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .fin-summary-metrics {
+    width: 100%;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+
+  .fin-metric-item {
+    border-left: none;
+    padding: 0.65rem 0.8rem;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+}
+
+/* Mobile Phones (<= 600px) */
+@media (max-width: 600px) {
+  .kpi-grid-6,
+  .kpi-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .global-search-wrap {
+    width: 165px;
+  }
+
+  .search-shortcut,
+  .user-meta {
+    display: none;
+  }
+
+  .user-profile-pill {
+    padding: 0.25rem;
+  }
+
+  .form-grid,
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .action-btn-group {
+    width: 100%;
+  }
+
+  .action-btn-group .btn {
+    flex: 1;
+  }
+
+  .table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .toolbar-search {
+    min-width: 100%;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .notif-panel {
+    position: fixed;
+    top: calc(var(--header-height) + 8px);
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+  }
+
+  .login-container {
+    padding: 1.85rem 1.35rem;
+  }
+}
+
+/* Print / Generate PDF Report Layout */
+@media print {
+  .sidebar,
+  .top-header,
+  .action-btn-group,
+  .report-tabs,
+  .filter-bar,
+  .toast-container,
+  .row-actions {
+    display: none !important;
+  }
+
+  .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  body,
+  .card,
+  .table-card,
+  .kpi-card {
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border-color: #cccccc !important;
+  }
+
+  .content-area {
+    padding: 0 !important;
+  }
+}
